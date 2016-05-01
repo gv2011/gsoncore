@@ -1424,7 +1424,7 @@ public class JsonReader implements JsonParser {
       }
     }
     if (throwOnEof) {
-      throw new IllegalStateException("End of input"
+      throw new MalformedJsonException("End of input"
           + " at line " + getLineNumber() + " column " + getColumnNumber());
     } else {
       return -1;
