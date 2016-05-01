@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2016 Vinz (https://github.com/gv2011)
  * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +15,8 @@
  * limitations under the License.
  */
 
-package com.google.gson.stream;
+package com.github.gv2011.jsoncore;
 
-import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
@@ -286,7 +285,7 @@ public class JsonReader implements Closeable {
   /**
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
-  public JsonReader(Reader in) {
+  public JsonReader(final Reader in) {
     if (in == null) {
       throw new NullPointerException("in == null");
     }
@@ -322,7 +321,7 @@ public class JsonReader implements Closeable {
    *   <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
    * </ul>
    */
-  public final void setLenient(boolean lenient) {
+  public final void setLenient(final boolean lenient) {
     this.lenient = lenient;
   }
 
@@ -463,12 +462,12 @@ public class JsonReader implements Closeable {
   }
 
   int doPeek() throws IOException {
-    int peekStack = stack[stackSize - 1];
+    final int peekStack = stack[stackSize - 1];
     if (peekStack == JsonScope.EMPTY_ARRAY) {
       stack[stackSize - 1] = JsonScope.NONEMPTY_ARRAY;
     } else if (peekStack == JsonScope.NONEMPTY_ARRAY) {
       // Look for a comma before the next element.
-      int c = nextNonWhitespace(true);
+      final int c = nextNonWhitespace(true);
       switch (c) {
       case ']':
         return peeked = PEEKED_END_ARRAY;
@@ -483,7 +482,7 @@ public class JsonReader implements Closeable {
       stack[stackSize - 1] = JsonScope.DANGLING_NAME;
       // Look for a comma before the next element.
       if (peekStack == JsonScope.NONEMPTY_OBJECT) {
-        int c = nextNonWhitespace(true);
+        final int c = nextNonWhitespace(true);
         switch (c) {
         case '}':
           return peeked = PEEKED_END_OBJECT;
@@ -495,7 +494,7 @@ public class JsonReader implements Closeable {
           throw syntaxError("Unterminated object");
         }
       }
-      int c = nextNonWhitespace(true);
+      final int c = nextNonWhitespace(true);
       switch (c) {
       case '"':
         return peeked = PEEKED_DOUBLE_QUOTED_NAME;
@@ -520,7 +519,7 @@ public class JsonReader implements Closeable {
     } else if (peekStack == JsonScope.DANGLING_NAME) {
       stack[stackSize - 1] = JsonScope.NONEMPTY_OBJECT;
       // Look for a colon before the value.
-      int c = nextNonWhitespace(true);
+      final int c = nextNonWhitespace(true);
       switch (c) {
       case ':':
         break;
@@ -539,7 +538,7 @@ public class JsonReader implements Closeable {
       }
       stack[stackSize - 1] = JsonScope.NONEMPTY_DOCUMENT;
     } else if (peekStack == JsonScope.NONEMPTY_DOCUMENT) {
-      int c = nextNonWhitespace(false);
+      final int c = nextNonWhitespace(false);
       if (c == -1) {
         return peeked = PEEKED_EOF;
       } else {
@@ -550,7 +549,7 @@ public class JsonReader implements Closeable {
       throw new IllegalStateException("JsonReader is closed");
     }
 
-    int c = nextNonWhitespace(true);
+    final int c = nextNonWhitespace(true);
     switch (c) {
     case ']':
       if (peekStack == JsonScope.EMPTY_ARRAY) {
@@ -621,7 +620,7 @@ public class JsonReader implements Closeable {
     }
 
     // Confirm that chars [1..length) match the keyword.
-    int length = keyword.length();
+    final int length = keyword.length();
     for (int i = 1; i < length; i++) {
       if (pos + i >= limit && !fillBuffer(i + 1)) {
         return PEEKED_NONE;
@@ -644,7 +643,7 @@ public class JsonReader implements Closeable {
 
   private int peekNumber() throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
-    char[] buffer = this.buffer;
+    final char[] buffer = this.buffer;
     int p = pos;
     int l = limit;
 
@@ -670,7 +669,7 @@ public class JsonReader implements Closeable {
         l = limit;
       }
 
-      char c = buffer[p + i];
+      final char c = buffer[p + i];
       switch (c) {
       case '-':
         if (last == NUMBER_CHAR_NONE) {
@@ -719,7 +718,7 @@ public class JsonReader implements Closeable {
           if (value == 0) {
             return PEEKED_NONE; // Leading '0' prefix is not allowed (since it could be octal).
           }
-          long newValue = value * 10 - (c - '0');
+          final long newValue = value * 10 - (c - '0');
           fitsInLong &= value > MIN_INCOMPLETE_INTEGER
               || (value == MIN_INCOMPLETE_INTEGER && newValue < value);
           value = newValue;
@@ -745,7 +744,7 @@ public class JsonReader implements Closeable {
     }
   }
 
-  private boolean isLiteral(char c) throws IOException {
+  private boolean isLiteral(final char c) throws IOException {
     switch (c) {
     case '/':
     case '\\':
@@ -771,7 +770,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the next token, a {@link com.google.gson.stream.JsonToken#NAME property name}, and
+   * Returns the next token, a {@link com.github.gv2011.jsoncore.JsonToken#NAME property name}, and
    * consumes it.
    *
    * @throws java.io.IOException if the next token in the stream is not a property
@@ -799,7 +798,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#STRING string} value of the next token,
+   * Returns the {@link com.github.gv2011.jsoncore.JsonToken#STRING string} value of the next token,
    * consuming it. If the next token is a number, this method will return its
    * string form.
    *
@@ -836,7 +835,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#BOOLEAN boolean} value of the next token,
+   * Returns the {@link com.github.gv2011.jsoncore.JsonToken#BOOLEAN boolean} value of the next token,
    * consuming it.
    *
    * @throws IllegalStateException if the next token is not a boolean or if
@@ -882,7 +881,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER double} value of the next token,
+   * Returns the {@link com.github.gv2011.jsoncore.JsonToken#NUMBER double} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as a double using {@link Double#parseDouble(String)}.
    *
@@ -915,7 +914,7 @@ public class JsonReader implements Closeable {
     }
 
     peeked = PEEKED_BUFFERED;
-    double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    final double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new MalformedJsonException("JSON forbids NaN and infinities: " + result
           + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
@@ -927,7 +926,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER long} value of the next token,
+   * Returns the {@link com.github.gv2011.jsoncore.JsonToken#NUMBER long} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as a long. If the next token's numeric value cannot be exactly
    * represented by a Java {@code long}, this method throws.
@@ -958,11 +957,11 @@ public class JsonReader implements Closeable {
         peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
       }
       try {
-        long result = Long.parseLong(peekedString);
+        final long result = Long.parseLong(peekedString);
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
         return result;
-      } catch (NumberFormatException ignored) {
+      } catch (final NumberFormatException ignored) {
         // Fall back to parse as a double below.
       }
     } else {
@@ -971,8 +970,8 @@ public class JsonReader implements Closeable {
     }
 
     peeked = PEEKED_BUFFERED;
-    double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
-    long result = (long) asDouble;
+    final double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    final long result = (long) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'long'.
       throw new NumberFormatException("Expected a long but was " + peekedString
           + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
@@ -993,17 +992,17 @@ public class JsonReader implements Closeable {
    * @throws NumberFormatException if any unicode escape sequences are
    *     malformed.
    */
-  private String nextQuotedValue(char quote) throws IOException {
+  private String nextQuotedValue(final char quote) throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
-    char[] buffer = this.buffer;
-    StringBuilder builder = new StringBuilder();
+    final char[] buffer = this.buffer;
+    final StringBuilder builder = new StringBuilder();
     while (true) {
       int p = pos;
       int l = limit;
       /* the index of the first character not yet appended to the builder. */
       int start = p;
       while (p < l) {
-        int c = buffer[p++];
+        final int c = buffer[p++];
 
         if (c == quote) {
           pos = p;
@@ -1095,15 +1094,15 @@ public class JsonReader implements Closeable {
     return result;
   }
 
-  private void skipQuotedValue(char quote) throws IOException {
+  private void skipQuotedValue(final char quote) throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
-    char[] buffer = this.buffer;
+    final char[] buffer = this.buffer;
     do {
       int p = pos;
       int l = limit;
       /* the index of the first character not yet appended to the builder. */
       while (p < l) {
-        int c = buffer[p++];
+        final int c = buffer[p++];
         if (c == quote) {
           pos = p;
           return;
@@ -1153,7 +1152,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the {@link com.google.gson.stream.JsonToken#NUMBER int} value of the next token,
+   * Returns the {@link com.github.gv2011.jsoncore.JsonToken#NUMBER int} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as an int. If the next token's numeric value cannot be exactly
    * represented by a Java {@code int}, this method throws.
@@ -1194,7 +1193,7 @@ public class JsonReader implements Closeable {
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
         return result;
-      } catch (NumberFormatException ignored) {
+      } catch (final NumberFormatException ignored) {
         // Fall back to parse as a double below.
       }
     } else {
@@ -1203,7 +1202,7 @@ public class JsonReader implements Closeable {
     }
 
     peeked = PEEKED_BUFFERED;
-    double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    final double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     result = (int) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'int'.
       throw new NumberFormatException("Expected an int but was " + peekedString
@@ -1218,6 +1217,7 @@ public class JsonReader implements Closeable {
   /**
    * Closes this JSON reader and the underlying {@link java.io.Reader}.
    */
+  @Override
   public void close() throws IOException {
     peeked = PEEKED_NONE;
     stack[0] = JsonScope.CLOSED;
@@ -1266,11 +1266,11 @@ public class JsonReader implements Closeable {
     pathNames[stackSize - 1] = "null";
   }
 
-  private void push(int newTop) {
+  private void push(final int newTop) {
     if (stackSize == stack.length) {
-      int[] newStack = new int[stackSize * 2];
-      int[] newPathIndices = new int[stackSize * 2];
-      String[] newPathNames = new String[stackSize * 2];
+      final int[] newStack = new int[stackSize * 2];
+      final int[] newPathIndices = new int[stackSize * 2];
+      final String[] newPathNames = new String[stackSize * 2];
       System.arraycopy(stack, 0, newStack, 0, stackSize);
       System.arraycopy(pathIndices, 0, newPathIndices, 0, stackSize);
       System.arraycopy(pathNames, 0, newPathNames, 0, stackSize);
@@ -1287,7 +1287,7 @@ public class JsonReader implements Closeable {
    * false.
    */
   private boolean fillBuffer(int minimum) throws IOException {
-    char[] buffer = this.buffer;
+    final char[] buffer = this.buffer;
     lineStart -= pos;
     if (limit != pos) {
       limit -= pos;
@@ -1329,7 +1329,7 @@ public class JsonReader implements Closeable {
    * {@code buffer[pos-1]}; this means the caller can always push back the
    * returned character by decrementing {@code pos}.
    */
-  private int nextNonWhitespace(boolean throwOnEof) throws IOException {
+  private int nextNonWhitespace(final boolean throwOnEof) throws IOException {
     /*
      * This code uses ugly local variables 'p' and 'l' representing the 'pos'
      * and 'limit' fields respectively. Using locals rather than fields saves
@@ -1338,7 +1338,7 @@ public class JsonReader implements Closeable {
      * before any (potentially indirect) call to fillBuffer() and reread both
      * 'p' and 'l' after any (potentially indirect) call to the same method.
      */
-    char[] buffer = this.buffer;
+    final char[] buffer = this.buffer;
     int p = pos;
     int l = limit;
     while (true) {
@@ -1351,7 +1351,7 @@ public class JsonReader implements Closeable {
         l = limit;
       }
 
-      int c = buffer[p++];
+      final int c = buffer[p++];
       if (c == '\n') {
         lineNumber++;
         lineStart = p;
@@ -1364,7 +1364,7 @@ public class JsonReader implements Closeable {
         pos = p;
         if (p == l) {
           pos--; // push back '/' so it's still in the buffer when this method returns
-          boolean charsLoaded = fillBuffer(2);
+          final boolean charsLoaded = fillBuffer(2);
           pos++; // consume the '/' again
           if (!charsLoaded) {
             return c;
@@ -1372,7 +1372,7 @@ public class JsonReader implements Closeable {
         }
 
         checkLenient();
-        char peek = buffer[pos];
+        final char peek = buffer[pos];
         switch (peek) {
         case '*':
           // skip a /* c-style comment */
@@ -1432,7 +1432,7 @@ public class JsonReader implements Closeable {
    */
   private void skipToEndOfLine() throws IOException {
     while (pos < limit || fillBuffer(1)) {
-      char c = buffer[pos++];
+      final char c = buffer[pos++];
       if (c == '\n') {
         lineNumber++;
         lineStart = pos;
@@ -1446,7 +1446,7 @@ public class JsonReader implements Closeable {
   /**
    * @param toFind a string to search for. Must not contain a newline.
    */
-  private boolean skipTo(String toFind) throws IOException {
+  private boolean skipTo(final String toFind) throws IOException {
     outer:
     for (; pos + toFind.length() <= limit || fillBuffer(toFind.length()); pos++) {
       if (buffer[pos] == '\n') {
@@ -1474,7 +1474,7 @@ public class JsonReader implements Closeable {
    * the current location in the JSON value.
    */
   public String getPath() {
-    StringBuilder result = new StringBuilder().append('$');
+    final StringBuilder result = new StringBuilder().append('$');
     for (int i = 0, size = stackSize; i < size; i++) {
       switch (stack[i]) {
         case JsonScope.EMPTY_ARRAY:
@@ -1514,7 +1514,7 @@ public class JsonReader implements Closeable {
       throw syntaxError("Unterminated escape sequence");
     }
 
-    char escaped = buffer[pos++];
+    final char escaped = buffer[pos++];
     switch (escaped) {
     case 'u':
       if (pos + 4 > limit && !fillBuffer(4)) {
@@ -1523,7 +1523,7 @@ public class JsonReader implements Closeable {
       // Equivalent to Integer.parseInt(stringPool.get(buffer, pos, 4), 16);
       char result = 0;
       for (int i = pos, end = i + 4; i < end; i++) {
-        char c = buffer[i];
+        final char c = buffer[i];
         result <<= 4;
         if (c >= '0' && c <= '9') {
           result += (c - '0');
@@ -1570,7 +1570,7 @@ public class JsonReader implements Closeable {
    * Throws a new IO exception with the given message and a context snippet
    * with this reader's content.
    */
-  private IOException syntaxError(String message) throws IOException {
+  private IOException syntaxError(final String message) throws IOException {
     throw new MalformedJsonException(message
         + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
   }
@@ -1599,7 +1599,7 @@ public class JsonReader implements Closeable {
 
   static {
     JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
-      @Override public void promoteNameToValue(JsonReader reader) throws IOException {
+      @Override public void promoteNameToValue(final JsonReader reader) throws IOException {
         if (reader instanceof JsonTreeReader) {
           ((JsonTreeReader)reader).promoteNameToValue();
           return;

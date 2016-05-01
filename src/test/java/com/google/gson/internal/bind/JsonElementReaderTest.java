@@ -16,9 +16,11 @@
 
 package com.google.gson.internal.bind;
 
+import com.github.gv2011.jsoncore.JsonToken;
+import com.github.gv2011.jsoncore.JsonTreeReader;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonToken;
+
 import java.io.IOException;
 import junit.framework.TestCase;
 

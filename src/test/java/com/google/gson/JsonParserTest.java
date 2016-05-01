@@ -22,9 +22,9 @@ import java.io.StringReader;
 
 import junit.framework.TestCase;
 
+import com.github.gv2011.jsoncore.JsonReader;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
 
 /**
  * Unit test for {@link JsonParser}

@@ -21,8 +21,8 @@ import java.lang.reflect.Type;
 
 import junit.framework.TestCase;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonWriter;
 
 /**
  * Unit tests for {@link GsonBuilder}.

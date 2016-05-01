@@ -16,6 +16,8 @@
 
 package com.google.gson.internal;
 
+import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonWriter;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
@@ -25,8 +27,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

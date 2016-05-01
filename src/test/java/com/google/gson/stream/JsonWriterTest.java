@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import com.github.gv2011.jsoncore.JsonWriter;
+
 import junit.framework.TestCase;
 
 @SuppressWarnings("resource")

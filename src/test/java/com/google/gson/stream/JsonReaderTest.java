@@ -16,22 +16,27 @@
 
 package com.google.gson.stream;
 
+import static com.github.gv2011.jsoncore.JsonToken.BEGIN_ARRAY;
+import static com.github.gv2011.jsoncore.JsonToken.BEGIN_OBJECT;
+import static com.github.gv2011.jsoncore.JsonToken.BOOLEAN;
+import static com.github.gv2011.jsoncore.JsonToken.END_ARRAY;
+import static com.github.gv2011.jsoncore.JsonToken.END_OBJECT;
+import static com.github.gv2011.jsoncore.JsonToken.NAME;
+import static com.github.gv2011.jsoncore.JsonToken.NULL;
+import static com.github.gv2011.jsoncore.JsonToken.NUMBER;
+import static com.github.gv2011.jsoncore.JsonToken.STRING;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
-import junit.framework.TestCase;
 
-import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
-import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
-import static com.google.gson.stream.JsonToken.BOOLEAN;
-import static com.google.gson.stream.JsonToken.END_ARRAY;
-import static com.google.gson.stream.JsonToken.END_OBJECT;
-import static com.google.gson.stream.JsonToken.NAME;
-import static com.google.gson.stream.JsonToken.NULL;
-import static com.google.gson.stream.JsonToken.NUMBER;
-import static com.google.gson.stream.JsonToken.STRING;
+import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonToken;
+import com.github.gv2011.jsoncore.MalformedJsonException;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings("resource")
 public final class JsonReaderTest extends TestCase {

@@ -17,10 +17,11 @@
 package com.google.gson;
 
 import com.google.gson.internal.bind.JsonTreeWriter;
-import com.google.gson.internal.bind.JsonTreeReader;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonToken;
+import com.github.gv2011.jsoncore.JsonTreeReader;
+import com.github.gv2011.jsoncore.JsonWriter;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -131,7 +132,7 @@ public abstract class TypeAdapter<T> {
    * Unlike Gson's similar {@link Gson#toJson(JsonElement, Appendable) toJson}
    * method, this write is strict. Create a {@link
    * JsonWriter#setLenient(boolean) lenient} {@code JsonWriter} and call
-   * {@link #write(com.google.gson.stream.JsonWriter, Object)} for lenient
+   * {@link #write(com.github.gv2011.jsoncore.JsonWriter, Object)} for lenient
    * writing.
    *
    * @param value the Java object to convert. May be null.
@@ -205,7 +206,7 @@ public abstract class TypeAdapter<T> {
    * Converts {@code value} to a JSON document. Unlike Gson's similar {@link
    * Gson#toJson(Object) toJson} method, this write is strict. Create a {@link
    * JsonWriter#setLenient(boolean) lenient} {@code JsonWriter} and call
-   * {@link #write(com.google.gson.stream.JsonWriter, Object)} for lenient
+   * {@link #write(com.github.gv2011.jsoncore.JsonWriter, Object)} for lenient
    * writing.
    *
    * @param value the Java object to convert. May be null.

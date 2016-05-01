@@ -18,6 +18,9 @@ package com.google.gson.stream;
 
 import java.io.IOException;
 import java.io.StringReader;
+
+import com.github.gv2011.jsoncore.JsonReader;
+
 import junit.framework.TestCase;
 
 @SuppressWarnings("resource")

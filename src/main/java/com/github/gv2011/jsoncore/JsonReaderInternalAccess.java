@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package com.github.gv2011.jsoncore;
 
-import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 
 /**

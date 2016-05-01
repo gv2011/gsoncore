@@ -22,10 +22,10 @@ import java.io.StringReader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonToken;
+import com.github.gv2011.jsoncore.MalformedJsonException;
 import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.MalformedJsonException;
 
 /**
  * A streaming parser that allows reading of multiple {@link JsonElement}s from the specified reader

@@ -34,6 +34,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
+import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonToken;
+import com.github.gv2011.jsoncore.JsonTreeReader;
+import com.github.gv2011.jsoncore.JsonWriter;
+import com.github.gv2011.jsoncore.MalformedJsonException;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.Primitives;
@@ -42,7 +47,6 @@ import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
 import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
-import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
@@ -51,10 +55,6 @@ import com.google.gson.internal.bind.SqlDateTypeAdapter;
 import com.google.gson.internal.bind.TimeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a

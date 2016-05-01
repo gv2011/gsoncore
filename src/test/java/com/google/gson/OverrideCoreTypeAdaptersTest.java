@@ -16,8 +16,9 @@
 
 package com.google.gson;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonWriter;
+
 import java.io.IOException;
 import java.util.Locale;
 import junit.framework.TestCase;

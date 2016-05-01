@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.stream;
+package com.github.gv2011.jsoncore;
 
 /**
  * A structure, name or value type in a JSON-encoded string.

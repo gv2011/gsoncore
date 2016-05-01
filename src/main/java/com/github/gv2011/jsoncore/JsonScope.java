@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2016 Vinz (https://github.com/gv2011)
  * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.stream;
+package com.github.gv2011.jsoncore;
 
 /**
  * Lexical scoping elements within a JSON reader or writer.
