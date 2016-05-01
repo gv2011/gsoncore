@@ -16,8 +16,8 @@
 
 package com.google.gson.metrics;
 
+import com.github.gv2011.jsoncore.JsonParseException;
 import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
 

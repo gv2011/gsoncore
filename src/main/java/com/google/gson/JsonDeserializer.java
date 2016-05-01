@@ -19,6 +19,7 @@ package com.google.gson;
 import java.lang.reflect.Type;
 
 import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonParseException;
 
 /**
  * <p>Interface representing a custom deserializer for Json. You should write a custom

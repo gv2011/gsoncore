@@ -16,11 +16,11 @@
 package com.google.gson.functional;
 
 import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonParseException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassOverridingEquals;
 

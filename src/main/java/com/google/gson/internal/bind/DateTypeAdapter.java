@@ -17,10 +17,10 @@
 package com.google.gson.internal.bind;
 
 import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonSyntaxException;
 import com.github.gv2011.jsoncore.JsonToken;
 import com.github.gv2011.jsoncore.JsonWriter;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.bind.util.ISO8601Utils;

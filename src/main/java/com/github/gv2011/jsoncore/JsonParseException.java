@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.github.gv2011.jsoncore;
 
 /**
  * This exception is raised if there is a serious issue that occurs during parsing of a Json

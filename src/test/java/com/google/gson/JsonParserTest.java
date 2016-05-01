@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import com.github.gv2011.jsoncore.JsonArray;
 import com.github.gv2011.jsoncore.JsonElement;
 import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonSyntaxException;
 import com.github.gv2011.jsoncore.imp.Streams;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 

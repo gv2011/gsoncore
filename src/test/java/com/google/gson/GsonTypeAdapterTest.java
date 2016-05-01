@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonParseException;
 import com.github.gv2011.jsoncore.JsonPrimitive;
 
 import junit.framework.TestCase;

@@ -27,7 +27,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonParseException;
 import com.github.gv2011.jsoncore.JsonPrimitive;
+import com.github.gv2011.jsoncore.JsonSyntaxException;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 
 /**

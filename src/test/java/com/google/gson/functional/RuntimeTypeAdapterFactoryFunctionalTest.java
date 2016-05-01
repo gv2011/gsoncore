@@ -23,12 +23,12 @@ import junit.framework.TestCase;
 
 import com.github.gv2011.jsoncore.JsonElement;
 import com.github.gv2011.jsoncore.JsonObject;
+import com.github.gv2011.jsoncore.JsonParseException;
 import com.github.gv2011.jsoncore.JsonPrimitive;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.JsonWriter;
 import com.github.gv2011.jsoncore.imp.Streams;
 import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;

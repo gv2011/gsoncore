@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonParseException;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.JsonWriter;
 import com.github.gv2011.jsoncore.imp.Preconditions;
@@ -24,7 +25,6 @@ import com.github.gv2011.jsoncore.imp.Streams;
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;

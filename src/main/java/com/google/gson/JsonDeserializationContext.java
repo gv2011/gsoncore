@@ -19,6 +19,7 @@ package com.google.gson;
 import java.lang.reflect.Type;
 
 import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonParseException;
 
 /**
  * Context for deserialization that is passed to a custom deserializer during invocation of its

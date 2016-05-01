@@ -20,8 +20,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
-import com.github.gv2011.jsoncore.imp.Streams;
+import java.util.Map;
 
 /**
  * A class representing an element of Json. It could either be a {@link JsonObject}, a
@@ -318,13 +317,47 @@ public abstract class JsonElement {
   @Override
   public String toString() {
     try {
-      StringWriter stringWriter = new StringWriter();
-      JsonWriter jsonWriter = new JsonWriter(stringWriter);
+      final StringWriter stringWriter = new StringWriter();
+      final JsonWriter jsonWriter = new JsonWriter(stringWriter);
       jsonWriter.setLenient(true);
-      Streams.write(this, jsonWriter);
+      write(jsonWriter, this);
       return stringWriter.toString();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new AssertionError(e);
     }
   }
+
+  private void write(final JsonWriter out, final JsonElement value) throws IOException {
+    if (value == null || value.isJsonNull()) {
+      out.nullValue();
+    } else if (value.isJsonPrimitive()) {
+      final JsonPrimitive primitive = value.getAsJsonPrimitive();
+      if (primitive.isNumber()) {
+        out.value(primitive.getAsNumber());
+      } else if (primitive.isBoolean()) {
+        out.value(primitive.getAsBoolean());
+      } else {
+        out.value(primitive.getAsString());
+      }
+
+    } else if (value.isJsonArray()) {
+      out.beginArray();
+      for (final JsonElement e : value.getAsJsonArray()) {
+        write(out, e);
+      }
+      out.endArray();
+
+    } else if (value.isJsonObject()) {
+      out.beginObject();
+      for (final Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
+        out.name(e.getKey());
+        write(out, e.getValue());
+      }
+      out.endObject();
+
+    } else {
+      throw new IllegalArgumentException("Couldn't write " + value.getClass());
+    }
+  }
+
 }

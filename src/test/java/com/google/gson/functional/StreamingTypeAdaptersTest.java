@@ -20,10 +20,10 @@ import com.github.gv2011.jsoncore.JsonArray;
 import com.github.gv2011.jsoncore.JsonObject;
 import com.github.gv2011.jsoncore.JsonPrimitive;
 import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonSyntaxException;
 import com.github.gv2011.jsoncore.JsonWriter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 

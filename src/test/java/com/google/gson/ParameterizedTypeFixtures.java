@@ -18,6 +18,7 @@ package com.google.gson;
 
 import com.github.gv2011.jsoncore.JsonElement;
 import com.github.gv2011.jsoncore.JsonObject;
+import com.github.gv2011.jsoncore.JsonParseException;
 import com.google.gson.internal.$Gson$Types;
 
 import com.google.gson.internal.Primitives;

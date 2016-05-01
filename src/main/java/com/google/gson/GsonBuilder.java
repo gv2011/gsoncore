@@ -29,9 +29,9 @@ import java.util.Map;
 import com.github.gv2011.jsoncore.JsonObject;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.imp.Preconditions;
+import com.github.gv2011.jsoncore.imp.TypeAdapters;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.bind.TreeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.reflect.TypeToken;
 
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;

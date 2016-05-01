@@ -20,7 +20,10 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonIOException;
+import com.github.gv2011.jsoncore.JsonParseException;
 import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonSyntaxException;
 import com.github.gv2011.jsoncore.JsonToken;
 import com.github.gv2011.jsoncore.MalformedJsonException;
 import com.github.gv2011.jsoncore.imp.Streams;

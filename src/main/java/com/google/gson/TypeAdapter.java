@@ -18,6 +18,7 @@ package com.google.gson;
 
 import com.google.gson.internal.bind.JsonTreeWriter;
 import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonIOException;
 import com.github.gv2011.jsoncore.JsonNull;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.JsonToken;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,33 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson;
+package com.github.gv2011.jsoncore;
 
 /**
- * This exception is raised when Gson was unable to read an input stream
- * or write to one.
- * 
+ * This exception is raised when Gson attempts to read (or write) a malformed
+ * JSON element.
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public final class JsonIOException extends JsonParseException {
+public final class JsonSyntaxException extends JsonParseException {
+
   private static final long serialVersionUID = 1L;
 
-  public JsonIOException(String msg) {
+  public JsonSyntaxException(String msg) {
     super(msg);
   }
 
-  public JsonIOException(String msg, Throwable cause) {
+  public JsonSyntaxException(String msg, Throwable cause) {
     super(msg, cause);
   }
 
   /**
    * Creates exception with the specified cause. Consider using
-   * {@link #JsonIOException(String, Throwable)} instead if you can describe what happened.
+   * {@link #JsonSyntaxException(String, Throwable)} instead if you can
+   * describe what actually happened.
    *
    * @param cause root exception that caused this exception to be thrown.
    */
-  public JsonIOException(Throwable cause) {
+  public JsonSyntaxException(Throwable cause) {
     super(cause);
   }
 }
