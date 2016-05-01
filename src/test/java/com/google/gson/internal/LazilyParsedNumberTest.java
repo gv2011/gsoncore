@@ -15,6 +15,8 @@
  */
 package com.google.gson.internal;
 
+import com.github.gv2011.jsoncore.imp.LazilyParsedNumber;
+
 import junit.framework.TestCase;
 
 public class LazilyParsedNumberTest extends TestCase {

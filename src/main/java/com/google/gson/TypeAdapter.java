@@ -17,10 +17,12 @@
 package com.google.gson;
 
 import com.google.gson.internal.bind.JsonTreeWriter;
+import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonNull;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.JsonToken;
-import com.github.gv2011.jsoncore.JsonTreeReader;
 import com.github.gv2011.jsoncore.JsonWriter;
+import com.github.gv2011.jsoncore.imp.JsonTreeReader;
 
 import java.io.IOException;
 import java.io.Reader;

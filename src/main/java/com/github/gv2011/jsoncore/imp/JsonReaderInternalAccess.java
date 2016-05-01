@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.jsoncore;
+package com.github.gv2011.jsoncore.imp;
 
 import java.io.IOException;
+
+import com.github.gv2011.jsoncore.JsonReader;
 
 /**
  * Internal-only APIs of JsonReader available only to other classes in Gson.

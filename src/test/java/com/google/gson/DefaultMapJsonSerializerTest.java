@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.HashMap;

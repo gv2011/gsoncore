@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.gson;
-
-import com.google.gson.internal.LinkedTreeMap;
+package com.github.gv2011.jsoncore;
 
 import java.util.Map;
 import java.util.Set;
+
+import com.github.gv2011.jsoncore.imp.LinkedTreeMap;
 
 /**
  * A class representing an object type in Json. An object consists of name-value pairs where names

@@ -16,8 +16,10 @@
 
 package com.google.gson.internal.bind;
 
-import com.google.gson.JsonNull;
 import java.io.IOException;
+
+import com.github.gv2011.jsoncore.JsonNull;
+
 import junit.framework.TestCase;
 
 @SuppressWarnings("resource")

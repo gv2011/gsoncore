@@ -16,8 +16,9 @@
 
 package com.google.gson.reflect;
 
+import com.github.gv2011.jsoncore.imp.Preconditions;
 import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.$Gson$Preconditions;
+
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -69,7 +70,7 @@ public class TypeToken<T> {
    */
   @SuppressWarnings("unchecked")
   TypeToken(Type type) {
-    this.type = $Gson$Types.canonicalize($Gson$Preconditions.checkNotNull(type));
+    this.type = $Gson$Types.canonicalize(Preconditions.checkNotNull(type));
     this.rawType = (Class<? super T>) $Gson$Types.getRawType(this.type);
     this.hashCode = this.type.hashCode();
   }

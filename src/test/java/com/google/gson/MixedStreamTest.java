@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.github.gv2011.jsoncore.JsonPrimitive;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.JsonWriter;
 import com.google.gson.reflect.TypeToken;

@@ -16,6 +16,11 @@
 
 package com.google.gson;
 
+import com.github.gv2011.jsoncore.JsonArray;
+import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonNull;
+import com.github.gv2011.jsoncore.JsonObject;
+import com.github.gv2011.jsoncore.JsonPrimitive;
 import com.google.gson.common.MoreAsserts;
 
 import junit.framework.TestCase;

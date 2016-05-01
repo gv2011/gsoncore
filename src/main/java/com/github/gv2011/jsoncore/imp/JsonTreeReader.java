@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.jsoncore;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+package com.github.gv2011.jsoncore.imp;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -28,6 +22,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import com.github.gv2011.jsoncore.JsonArray;
+import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonNull;
+import com.github.gv2011.jsoncore.JsonObject;
+import com.github.gv2011.jsoncore.JsonPrimitive;
+import com.github.gv2011.jsoncore.JsonReader;
+import com.github.gv2011.jsoncore.JsonToken;
 
 /**
  * This reader walks the elements of a JsonElement as if it was coming from a

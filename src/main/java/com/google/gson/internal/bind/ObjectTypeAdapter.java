@@ -19,10 +19,10 @@ package com.google.gson.internal.bind;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.JsonToken;
 import com.github.gv2011.jsoncore.JsonWriter;
+import com.github.gv2011.jsoncore.imp.LinkedTreeMap;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;

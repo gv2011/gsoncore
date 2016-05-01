@@ -18,6 +18,8 @@ package com.google.gson;
 
 import java.lang.reflect.Type;
 
+import com.github.gv2011.jsoncore.JsonElement;
+
 /**
  * <p>Interface representing a custom deserializer for Json. You should write a custom
  * deserializer, if you are not happy with the default deserialization done by Gson. You will

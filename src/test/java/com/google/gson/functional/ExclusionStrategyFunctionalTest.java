@@ -16,12 +16,13 @@
 
 package com.google.gson.functional;
 
+import com.github.gv2011.jsoncore.JsonObject;
+import com.github.gv2011.jsoncore.JsonPrimitive;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

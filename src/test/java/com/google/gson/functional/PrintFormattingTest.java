@@ -16,9 +16,9 @@
 
 package com.google.gson.functional;
 
+import com.github.gv2011.jsoncore.JsonObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;

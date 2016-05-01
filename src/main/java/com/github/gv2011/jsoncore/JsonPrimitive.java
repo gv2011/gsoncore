@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.github.gv2011.jsoncore;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.LazilyParsedNumber;
+import com.github.gv2011.jsoncore.imp.LazilyParsedNumber;
+import com.github.gv2011.jsoncore.imp.Preconditions;
 
 /**
  * A class representing a Json primitive value. A primitive value
@@ -97,7 +97,7 @@ public final class JsonPrimitive extends JsonElement {
       char c = ((Character) primitive).charValue();
       this.value = String.valueOf(c);
     } else {
-      $Gson$Preconditions.checkArgument(primitive instanceof Number
+      Preconditions.checkArgument(primitive instanceof Number
               || isPrimitiveOrString(primitive));
       this.value = primitive;
     }

@@ -16,19 +16,19 @@
 
 package com.google.gson.internal.bind;
 
+import com.github.gv2011.jsoncore.JsonElement;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.JsonWriter;
+import com.github.gv2011.jsoncore.imp.Preconditions;
+import com.github.gv2011.jsoncore.imp.Streams;
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
@@ -132,7 +132,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
       deserializer = typeAdapter instanceof JsonDeserializer
           ? (JsonDeserializer<?>) typeAdapter
           : null;
-      $Gson$Preconditions.checkArgument(serializer != null || deserializer != null);
+      Preconditions.checkArgument(serializer != null || deserializer != null);
       this.exactType = exactType;
       this.matchRawType = matchRawType;
       this.hierarchyType = hierarchyType;

@@ -19,10 +19,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
+import com.github.gv2011.jsoncore.JsonElement;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.JsonToken;
 import com.github.gv2011.jsoncore.MalformedJsonException;
-import com.google.gson.internal.Streams;
+import com.github.gv2011.jsoncore.imp.Streams;
 
 /**
  * A parser to parse Json into a parse tree of {@link JsonElement}s

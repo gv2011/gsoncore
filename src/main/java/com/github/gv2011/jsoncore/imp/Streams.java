@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package com.github.gv2011.jsoncore.imp;
 
+import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonNull;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.JsonWriter;
 import com.github.gv2011.jsoncore.MalformedJsonException;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.bind.TypeAdapters;

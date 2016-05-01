@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.github.gv2011.jsoncore.JsonPrimitive;
 import com.google.gson.common.MoreAsserts;
 
 import junit.framework.TestCase;

@@ -24,6 +24,7 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
+import com.github.gv2011.jsoncore.imp.LinkedTreeMap;
 import com.google.gson.common.MoreAsserts;
 
 public final class LinkedTreeMapTest extends TestCase {

@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.gv2011.jsoncore.imp.Preconditions;
+
 /**
  * Contains static utility methods pertaining to primitive types and their
  * corresponding wrapper types.
@@ -80,7 +82,7 @@ public final class Primitives {
    */
   public static boolean isWrapperType(Type type) {
     return WRAPPER_TO_PRIMITIVE_TYPE.containsKey(
-        $Gson$Preconditions.checkNotNull(type));
+        Preconditions.checkNotNull(type));
   }
 
   /**
@@ -96,7 +98,7 @@ public final class Primitives {
     // cast is safe: long.class and Long.class are both of type Class<Long>
     @SuppressWarnings("unchecked")
     Class<T> wrapped = (Class<T>) PRIMITIVE_TO_WRAPPER_TYPE.get(
-        $Gson$Preconditions.checkNotNull(type));
+        Preconditions.checkNotNull(type));
     return (wrapped == null) ? type : wrapped;
   }
 
@@ -113,7 +115,7 @@ public final class Primitives {
     // cast is safe: long.class and Long.class are both of type Class<Long>
     @SuppressWarnings("unchecked")
     Class<T> unwrapped = (Class<T>) WRAPPER_TO_PRIMITIVE_TYPE.get(
-        $Gson$Preconditions.checkNotNull(type));
+        Preconditions.checkNotNull(type));
     return (unwrapped == null) ? type : unwrapped;
   }
 }

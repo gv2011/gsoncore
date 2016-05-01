@@ -16,9 +16,9 @@
 
 package com.google.gson.internal.bind;
 
+import com.github.gv2011.jsoncore.JsonElement;
 import com.github.gv2011.jsoncore.JsonToken;
-import com.github.gv2011.jsoncore.JsonTreeReader;
-import com.google.gson.JsonElement;
+import com.github.gv2011.jsoncore.imp.JsonTreeReader;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;

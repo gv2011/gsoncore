@@ -16,8 +16,8 @@
 
 package com.google.gson.functional;
 
+import com.github.gv2011.jsoncore.JsonObject;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import junit.framework.TestCase;
 

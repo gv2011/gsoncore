@@ -18,6 +18,8 @@ package com.google.gson;
 
 import java.lang.reflect.Type;
 
+import com.github.gv2011.jsoncore.JsonElement;
+
 /**
  * Interface representing a custom serializer for Json. You should write a custom serializer, if
  * you are not happy with the default serialization done by Gson. You will also need to register

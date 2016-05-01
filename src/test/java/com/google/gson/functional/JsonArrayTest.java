@@ -16,10 +16,11 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.JsonArray;
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
+
+import com.github.gv2011.jsoncore.JsonArray;
 
 /**
  * Functional tests for adding primitives to a JsonArray.

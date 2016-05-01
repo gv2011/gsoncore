@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package com.github.gv2011.jsoncore.imp;
 
 /**
  * A simple utility class used to check method Preconditions.
@@ -29,8 +29,8 @@ package com.google.gson.internal;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public final class $Gson$Preconditions {
-  private $Gson$Preconditions() {
+public final class Preconditions {
+  private Preconditions() {
     throw new UnsupportedOperationException();
   }
 

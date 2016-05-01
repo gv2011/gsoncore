@@ -16,6 +16,9 @@
 
 package com.google.gson;
 
+import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonPrimitive;
+
 /**
  * Defines the expected format for a {@code long} or {@code Long} type when its serialized.
  *

@@ -26,8 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.gv2011.jsoncore.JsonObject;
 import com.github.gv2011.jsoncore.JsonReader;
-import com.google.gson.internal.$Gson$Preconditions;
+import com.github.gv2011.jsoncore.imp.Preconditions;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
@@ -469,7 +470,7 @@ public final class GsonBuilder {
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
-    $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+    Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
         || typeAdapter instanceof TypeAdapter<?>);
@@ -515,7 +516,7 @@ public final class GsonBuilder {
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
-    $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
+    Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof TypeAdapter<?>);
     if (typeAdapter instanceof JsonDeserializer || typeAdapter instanceof JsonSerializer) {

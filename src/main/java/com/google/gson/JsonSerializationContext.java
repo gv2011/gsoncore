@@ -18,6 +18,8 @@ package com.google.gson;
 
 import java.lang.reflect.Type;
 
+import com.github.gv2011.jsoncore.JsonElement;
+
 /**
  * Context for serialization that is passed to a custom serializer during invocation of its
  * {@link JsonSerializer#serialize(Object, Type, JsonSerializationContext)} method.

@@ -22,6 +22,9 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 
+import com.github.gv2011.jsoncore.imp.JsonReaderInternalAccess;
+import com.github.gv2011.jsoncore.imp.JsonTreeReader;
+
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
  * encoded value as a stream of tokens. This stream includes both literal

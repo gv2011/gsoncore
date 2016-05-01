@@ -15,10 +15,10 @@
  */
 package com.google.gson.functional;
 
+import com.github.gv2011.jsoncore.JsonArray;
+import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonObject;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.ClassWithBaseArrayField;

@@ -40,21 +40,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
+import com.github.gv2011.jsoncore.JsonArray;
+import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonNull;
+import com.github.gv2011.jsoncore.JsonObject;
+import com.github.gv2011.jsoncore.JsonPrimitive;
 import com.github.gv2011.jsoncore.JsonReader;
 import com.github.gv2011.jsoncore.JsonToken;
 import com.github.gv2011.jsoncore.JsonWriter;
+import com.github.gv2011.jsoncore.imp.LazilyParsedNumber;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.reflect.TypeToken;
 
 /**

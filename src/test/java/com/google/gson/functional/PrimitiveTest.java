@@ -16,9 +16,9 @@
 
 package com.google.gson.functional;
 
+import com.github.gv2011.jsoncore.JsonPrimitive;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.LongSerializationPolicy;
 import com.google.gson.reflect.TypeToken;

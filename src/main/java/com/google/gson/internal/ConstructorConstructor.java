@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import com.github.gv2011.jsoncore.imp.LinkedTreeMap;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;

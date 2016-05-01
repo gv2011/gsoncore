@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.gson;
-
-import com.github.gv2011.jsoncore.JsonWriter;
-import com.google.gson.internal.Streams;
+package com.github.gv2011.jsoncore;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import com.github.gv2011.jsoncore.imp.Streams;
 
 /**
  * A class representing an element of Json. It could either be a {@link JsonObject}, a

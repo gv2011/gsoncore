@@ -16,20 +16,20 @@
 
 package com.google.gson.internal.bind;
 
+import com.github.gv2011.jsoncore.JsonElement;
+import com.github.gv2011.jsoncore.JsonPrimitive;
 import com.github.gv2011.jsoncore.JsonReader;
-import com.github.gv2011.jsoncore.JsonReaderInternalAccess;
 import com.github.gv2011.jsoncore.JsonToken;
 import com.github.gv2011.jsoncore.JsonWriter;
+import com.github.gv2011.jsoncore.imp.JsonReaderInternalAccess;
+import com.github.gv2011.jsoncore.imp.Streams;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
-import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;

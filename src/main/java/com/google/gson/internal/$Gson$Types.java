@@ -16,6 +16,9 @@
 
 package com.google.gson.internal;
 
+import static com.github.gv2011.jsoncore.imp.Preconditions.checkArgument;
+import static com.github.gv2011.jsoncore.imp.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -30,9 +33,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
-
-import static com.google.gson.internal.$Gson$Preconditions.checkArgument;
-import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 /**
  * Static methods for working with types.

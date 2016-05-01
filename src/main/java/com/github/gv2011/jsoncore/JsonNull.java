@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package com.github.gv2011.jsoncore;
 
 /**
  * A class representing a Json {@code null} value.

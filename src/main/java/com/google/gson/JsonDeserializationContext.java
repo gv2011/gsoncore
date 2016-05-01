@@ -18,6 +18,8 @@ package com.google.gson;
 
 import java.lang.reflect.Type;
 
+import com.github.gv2011.jsoncore.JsonElement;
+
 /**
  * Context for deserialization that is passed to a custom deserializer during invocation of its
  * {@link JsonDeserializer#deserialize(JsonElement, Type, JsonDeserializationContext)}
