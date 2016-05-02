@@ -1,12 +1,6 @@
 package com.github.gv2011.jsoncore.imp;
 
-import static com.github.gv2011.util.ex.Exceptions.run;
-
-import java.io.StringWriter;
-
-import com.github.gv2011.jsoncore.JsonEncoder;
-
-class JsonStringEncoder implements JsonEncoder<String>{
+class JsonStringEncoder extends AbstractJsonEncoder<String>{
 
     /*
    * From RFC 7159, "All Unicode characters may be placed within the
@@ -52,13 +46,6 @@ class JsonStringEncoder implements JsonEncoder<String>{
   }
 
   @Override
-  public String encode(final String value) {
-    final StringWriter w = new StringWriter();
-    encode(value, w);
-    return w.toString();
-  }
-
-  @Override
   public void encode(final String value, final Appendable out) {
     final String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
     write(out, "\"");
@@ -89,14 +76,6 @@ class JsonStringEncoder implements JsonEncoder<String>{
       write(out, value, last, length - last);
     }
     write(out, "\"");
-  }
-
-  private void write(final Appendable out, final String str) {
-    run(()->out.append(str));
-  }
-
-  private void write(final Appendable out, final String cbuf, final int off, final int len) {
-    run(()->out.append(cbuf, off, off+len));
   }
 
 }

@@ -172,15 +172,6 @@ public interface JsonSerializer extends Closeable, Flushable {
    */
   public JsonSerializer value(final String value);
 
-  /**
-   * Writes {@code value} directly to the writer without quoting or
-   * escaping.
-   *
-   * @param value the literal string value, or null to encode a null literal.
-   * @return this writer.
-   */
-  public JsonSerializer jsonValue(final String value);
-
 
   /**
    * Encodes {@code null}.

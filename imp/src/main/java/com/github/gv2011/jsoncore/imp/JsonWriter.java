@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.github.gv2011.jsoncore.JsonEncoder;
+import com.github.gv2011.jsoncore.JsonFactory;
 import com.github.gv2011.jsoncore.JsonOption;
 import com.github.gv2011.jsoncore.JsonSerializer;
 
@@ -71,19 +72,21 @@ public class JsonWriter implements JsonSerializer {
   private final Set<JsonOption> optList;
 
   private final JsonEncoder<String> stringEncoder;
+  private final JsonEncoder<Long> longEncoder;
 
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
    * For best performance, ensure {@link Writer} is buffered; wrapping in
    * {@link java.io.BufferedWriter BufferedWriter} if necessary.
    */
-  public JsonWriter(final Writer out, final JsonOption... options) {
+  public JsonWriter(final Writer out, final JsonFactory factory, final JsonOption... options) {
     this.out = out;
     optList = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(options)));
     lenient = optList.contains(JsonOption.LENIENT);
     htmlSafe = optList.contains(JsonOption.HTML_SAFE);
     serializeNulls = !optList.contains(JsonOption.OMIT_NULLS);
-    stringEncoder = new JsonStringEncoder(htmlSafe);
+    stringEncoder = factory.newJsonEncoder(String.class, options);
+    longEncoder = factory.newJsonEncoder(Long.class, options);
   }
 
   /**
@@ -322,7 +325,6 @@ public class JsonWriter implements JsonSerializer {
    * @param value the literal string value, or null to encode a null literal.
    * @return this writer.
    */
-  @Override
   public JsonWriter jsonValue(final String value){
     if (value == null) {
       return nullValue();
@@ -413,7 +415,7 @@ public class JsonWriter implements JsonSerializer {
   public JsonWriter value(final long value){
     writeDeferredName();
     beforeValue();
-    write(Long.toString(value));
+    longEncoder.encode(value, out);
     return this;
   }
 
