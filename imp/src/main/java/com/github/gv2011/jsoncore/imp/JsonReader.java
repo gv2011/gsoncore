@@ -1577,29 +1577,4 @@ public class JsonReader implements JsonParser {
     pos += NON_EXECUTE_PREFIX.length;
   }
 
-  static {
-    JsonReaderInternalAccess.INSTANCE = new JsonReaderInternalAccess() {
-      @Override public void promoteNameToValue(final JsonReader reader) {
-        if (reader instanceof JsonTreeReader) {
-          ((JsonTreeReader)reader).promoteNameToValue();
-          return;
-        }
-        int p = reader.peeked;
-        if (p == PEEKED_NONE) {
-          p = reader.doPeek();
-        }
-        if (p == PEEKED_DOUBLE_QUOTED_NAME) {
-          reader.peeked = PEEKED_DOUBLE_QUOTED;
-        } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
-          reader.peeked = PEEKED_SINGLE_QUOTED;
-        } else if (p == PEEKED_UNQUOTED_NAME) {
-          reader.peeked = PEEKED_UNQUOTED;
-        } else {
-          throw new IllegalStateException("Expected a name but was " + reader.peek() + " "
-              + " at line " + reader.getLineNumber() + " column " + reader.getColumnNumber()
-              + " path " + reader.getPath());
-        }
-      }
-    };
-  }
 }
