@@ -21,7 +21,9 @@ import static com.github.gv2011.util.ex.Exceptions.call;
 import static com.github.gv2011.util.ex.Exceptions.run;
 
 import java.io.Reader;
+import java.util.Arrays;
 
+import com.github.gv2011.jsoncore.JsonOption;
 import com.github.gv2011.jsoncore.JsonParser;
 import com.github.gv2011.jsoncore.JsonToken;
 
@@ -229,7 +231,7 @@ public class JsonReader implements JsonParser {
   private final Reader in;
 
   /** True to accept non-spec compliant JSON */
-  private boolean lenient = false;
+  private final boolean lenient;
 
   /**
    * Use a manual buffer to easily read and unread upcoming characters, and
@@ -288,45 +290,11 @@ public class JsonReader implements JsonParser {
   /**
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
-  public JsonReader(final Reader in) {
-    if (in == null) {
-      throw new NullPointerException("in == null");
-    }
+  public JsonReader(final Reader in, final JsonOption... options) {
     this.in = in;
+    lenient = Arrays.asList(options).contains(JsonOption.LENIENT);
   }
 
-  /**
-   * Configure this parser to be liberal in what it accepts. By default,
-   * this parser is strict and only accepts JSON as specified by <a
-   * href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>. Setting the
-   * parser to lenient causes it to ignore the following syntax errors:
-   *
-   * <ul>
-   *   <li>Streams that start with the <a href="#nonexecuteprefix">non-execute
-   *       prefix</a>, <code>")]}'\n"</code>.
-   *   <li>Streams that include multiple top-level values. With strict parsing,
-   *       each stream must contain exactly one top-level value.
-   *   <li>Top-level values of any type. With strict parsing, the top-level
-   *       value must be an object or an array.
-   *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
-   *       Double#isInfinite() infinities}.
-   *   <li>End of line comments starting with {@code //} or {@code #} and
-   *       ending with a newline character.
-   *   <li>C-style comments starting with {@code /*} and ending with
-   *       {@code *}{@code /}. Such comments may not be nested.
-   *   <li>Names that are unquoted or {@code 'single quoted'}.
-   *   <li>Strings that are unquoted or {@code 'single quoted'}.
-   *   <li>Array elements separated by {@code ;} instead of {@code ,}.
-   *   <li>Unnecessary array separators. These are interpreted as if null
-   *       was the omitted value.
-   *   <li>Names and values separated by {@code =} or {@code =>} instead of
-   *       {@code :}.
-   *   <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
-   * </ul>
-   */
-  public final void setLenient(final boolean lenient) {
-    this.lenient = lenient;
-  }
 
   /**
    * Returns true if this parser is liberal in what it accepts.

@@ -31,6 +31,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
 
+import com.github.gv2011.jsoncore.JsonOption;
 import com.github.gv2011.jsoncore.JsonToken;
 
 import junit.framework.TestCase;
@@ -174,14 +175,6 @@ public final class JsonReaderTest extends TestCase {
     reader.endArray();
     reader.endObject();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
-  }
-
-  public void testNulls() {
-    try {
-      new JsonReader(null);
-      fail();
-    } catch (final NullPointerException expected) {
-    }
   }
 
   public void testEmptyString() {
@@ -333,8 +326,7 @@ public final class JsonReaderTest extends TestCase {
 
   public void testLenientNonFiniteDoubles() throws MalformedJsonException {
     final String json = "[NaN, -Infinity, Infinity]";
-    final JsonReader reader = new JsonReader(reader(json));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader(json), JsonOption.LENIENT);
     reader.beginArray();
     assertTrue(Double.isNaN(reader.nextDouble()));
     assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
@@ -344,8 +336,7 @@ public final class JsonReaderTest extends TestCase {
 
   public void testLenientQuotedNonFiniteDoubles() throws MalformedJsonException {
     final String json = "[\"NaN\", \"-Infinity\", \"Infinity\"]";
-    final JsonReader reader = new JsonReader(reader(json));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader(json), JsonOption.LENIENT);
     reader.beginArray();
     assertTrue(Double.isNaN(reader.nextDouble()));
     assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
@@ -436,8 +427,7 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testPeekingUnquotedStringsPrefixedWithBooleans() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[truey]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[truey]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(STRING, reader.peek());
     try {
@@ -487,8 +477,7 @@ public final class JsonReaderTest extends TestCase {
   }
 
   private void assertNotANumber(final String s) throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[" + s + "]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[" + s + "]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(JsonToken.STRING, reader.peek());
     assertEquals(s, reader.nextString());
@@ -496,8 +485,7 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testPeekingUnquotedStringsPrefixedWithIntegers() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[12.34e5x]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[12.34e5x]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(STRING, reader.peek());
     try {
@@ -509,24 +497,21 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testPeekLongMinValue() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[-9223372036854775808]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[-9223372036854775808]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     assertEquals(-9223372036854775808L, reader.nextLong());
   }
 
   public void testPeekLongMaxValue() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[9223372036854775807]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[9223372036854775807]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     assertEquals(9223372036854775807L, reader.nextLong());
   }
 
   public void testLongLargerThanMaxLongThatWrapsAround() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[22233720368547758070]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[22233720368547758070]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     try {
@@ -537,8 +522,7 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLongLargerThanMinLongThatWrapsAround() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[-22233720368547758070]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[-22233720368547758070]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     try {
@@ -553,8 +537,7 @@ public final class JsonReaderTest extends TestCase {
    * long parsing uses Double.parseDouble() for fractional values.
    */
   public void disabled_testPeekLargerThanLongMaxValue() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[9223372036854775808]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[9223372036854775808]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     try {
@@ -569,8 +552,7 @@ public final class JsonReaderTest extends TestCase {
    * long parsing uses Double.parseDouble() for fractional values.
    */
   public void disabled_testPeekLargerThanLongMinValue() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[-9223372036854775809]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[-9223372036854775809]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     try {
@@ -594,8 +576,7 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testPeekMuchLargerThanLongMinValue() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[-92233720368547758080]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[-92233720368547758080]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     try {
@@ -607,8 +588,7 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testQuotedNumberWithEscape() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[\"12\u00334\"]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[\"12\u00334\"]"), JsonOption.LENIENT);
     reader.beginArray();
     assertEquals(STRING, reader.peek());
     assertEquals(1234, reader.nextInt());
@@ -793,14 +773,12 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientNameValueSeparator() throws MalformedJsonException {
-    JsonReader reader = new JsonReader(reader("{\"a\"=true}"));
-    reader.setLenient(true);
+    JsonReader reader = new JsonReader(reader("{\"a\"=true}"), JsonOption.LENIENT);
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals(true, reader.nextBoolean());
 
-    reader = new JsonReader(reader("{\"a\"=>true}"));
-    reader.setLenient(true);
+    reader = new JsonReader(reader("{\"a\"=>true}"), JsonOption.LENIENT);
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals(true, reader.nextBoolean());
@@ -872,18 +850,18 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientComments() throws MalformedJsonException {
-    JsonReader reader = new JsonReader(reader("[// comment \n true]"));
-    reader.setLenient(true);
+    JsonReader reader = new JsonReader(reader("[// comment \n true]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
 
-    reader = new JsonReader(reader("[# comment \n true]"));
-    reader.setLenient(true);
+    reader = new JsonReader(reader("[# comment \n true]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
 
-    reader = new JsonReader(reader("[/* comment */ true]"));
-    reader.setLenient(true);
+    reader = new JsonReader(reader("[/* comment */ true]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
   }
@@ -925,8 +903,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientUnquotedNames() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("{a:true}"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("{a:true}"), JsonOption.LENIENT);
+
     reader.beginObject();
     assertEquals("a", reader.nextName());
   }
@@ -952,8 +930,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientSingleQuotedNames() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("{'a':true}"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("{'a':true}"), JsonOption.LENIENT);
+
     reader.beginObject();
     assertEquals("a", reader.nextName());
   }
@@ -989,8 +967,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientUnquotedStrings() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[a]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[a]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals("a", reader.nextString());
   }
@@ -1006,8 +984,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientSingleQuotedStrings() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("['a']"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("['a']"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals("a", reader.nextString());
   }
@@ -1034,8 +1012,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientSemicolonDelimitedArray() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[true;true]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[true;true]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     assertEquals(true, reader.nextBoolean());
@@ -1065,8 +1043,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientSemicolonDelimitedNameValuePair() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("{\"a\":true;\"b\":true}"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("{\"a\":true;\"b\":true}"), JsonOption.LENIENT);
+
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals(true, reader.nextBoolean());
@@ -1122,30 +1100,30 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientUnnecessaryArraySeparators() throws MalformedJsonException {
-    JsonReader reader = new JsonReader(reader("[true,,true]"));
-    reader.setLenient(true);
+    JsonReader reader = new JsonReader(reader("[true,,true]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     reader.nextNull();
     assertEquals(true, reader.nextBoolean());
     reader.endArray();
 
-    reader = new JsonReader(reader("[,true]"));
-    reader.setLenient(true);
+    reader = new JsonReader(reader("[,true]"), JsonOption.LENIENT);
+
     reader.beginArray();
     reader.nextNull();
     assertEquals(true, reader.nextBoolean());
     reader.endArray();
 
-    reader = new JsonReader(reader("[true,]"));
-    reader.setLenient(true);
+    reader = new JsonReader(reader("[true,]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     reader.nextNull();
     reader.endArray();
 
-    reader = new JsonReader(reader("[,]"));
-    reader.setLenient(true);
+    reader = new JsonReader(reader("[,]"), JsonOption.LENIENT);
+
     reader.beginArray();
     reader.nextNull();
     reader.nextNull();
@@ -1200,8 +1178,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientMultipleTopLevelValues() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[] true {}"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[] true {}"), JsonOption.LENIENT);
+
     reader.beginArray();
     reader.endArray();
     assertEquals(true, reader.nextBoolean());
@@ -1273,24 +1251,24 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientNonExecutePrefix() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader(")]}'\n []"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader(")]}'\n []"), JsonOption.LENIENT);
+
     reader.beginArray();
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
   public void testLenientNonExecutePrefixWithLeadingWhitespace() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("\r\n \t)]}'\n []"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("\r\n \t)]}'\n []"), JsonOption.LENIENT);
+
     reader.beginArray();
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
   public void testLenientPartialNonExecutePrefix() {
-    final JsonReader reader = new JsonReader(reader(")]}' []"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader(")]}' []"), JsonOption.LENIENT);
+
     try {
       assertEquals(")", reader.nextString());
       reader.nextString();
@@ -1361,8 +1339,7 @@ public final class JsonReaderTest extends TestCase {
 
   private void testFailWithPosition(final String message, final String json) throws MalformedJsonException {
     // Validate that it works reading the string normally.
-    final JsonReader reader1 = new JsonReader(reader(json));
-    reader1.setLenient(true);
+    final JsonReader reader1 = new JsonReader(reader(json), JsonOption.LENIENT);
     reader1.beginArray();
     reader1.nextString();
     try {
@@ -1373,8 +1350,7 @@ public final class JsonReaderTest extends TestCase {
     }
 
     // Also validate that it works when skipping.
-    final JsonReader reader2 = new JsonReader(reader(json));
-    reader2.setLenient(true);
+    final JsonReader reader2 = new JsonReader(reader(json), JsonOption.LENIENT);
     reader2.beginArray();
     reader2.skipValue();
     try {
@@ -1413,8 +1389,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientVeryLongNumber() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[0." + repeat('9', 8192) + "]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[0." + repeat('9', 8192) + "]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(JsonToken.STRING, reader.peek());
     assertEquals(1d, reader.nextDouble());
@@ -1424,8 +1400,8 @@ public final class JsonReaderTest extends TestCase {
 
   public void testVeryLongUnquotedLiteral() throws MalformedJsonException {
     final String literal = "a" + repeat('b', 8192) + "c";
-    final JsonReader reader = new JsonReader(reader("[" + literal + "]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[" + literal + "]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(literal, reader.nextString());
     reader.endArray();
@@ -1470,8 +1446,8 @@ public final class JsonReaderTest extends TestCase {
 
   // http://code.google.com/p/google-gson/issues/detail?id=409
   public void testStringEndingInSlash() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("/"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("/"), JsonOption.LENIENT);
+
     try {
       reader.peek();
       fail();
@@ -1480,8 +1456,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testDocumentWithCommentEndingInSlash() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("/* foo *//"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("/* foo *//"), JsonOption.LENIENT);
+
     try {
       reader.peek();
       fail();
@@ -1490,8 +1466,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testStringWithLeadingSlash() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("/x"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("/x"), JsonOption.LENIENT);
+
     try {
       reader.peek();
       fail();
@@ -1500,8 +1476,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testUnterminatedObject() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("{\"a\":\"android\"x"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("{\"a\":\"android\"x"), JsonOption.LENIENT);
+
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals("android", reader.nextString());
@@ -1528,8 +1504,8 @@ public final class JsonReaderTest extends TestCase {
     Arrays.fill(stringChars, 'x');
     final String string = new String(stringChars);
     final String json = "[" + string + "]";
-    final JsonReader reader = new JsonReader(reader(json));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader(json), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(string, reader.nextString());
     reader.endArray();
@@ -1540,8 +1516,8 @@ public final class JsonReaderTest extends TestCase {
     Arrays.fill(stringChars, 'x');
     final String string = new String(stringChars);
     final String json = "[" + string;
-    final JsonReader reader = new JsonReader(reader(json));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader(json), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(string, reader.nextString());
     try {
@@ -1552,16 +1528,16 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testSkipVeryLongUnquotedString() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[" + repeat('x', 8192) + "]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[" + repeat('x', 8192) + "]"), JsonOption.LENIENT);
+
     reader.beginArray();
     reader.skipValue();
     reader.endArray();
   }
 
   public void testSkipTopLevelUnquotedString() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader(repeat('x', 8192)));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader(repeat('x', 8192)), JsonOption.LENIENT);
+
     reader.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
@@ -1574,36 +1550,36 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testSkipTopLevelQuotedString() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("\"" + repeat('x', 8192) + "\""));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("\"" + repeat('x', 8192) + "\""), JsonOption.LENIENT);
+
     reader.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
   public void testStringAsNumberWithTruncatedExponent() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[123e]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[123e]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(STRING, reader.peek());
   }
 
   public void testStringAsNumberWithDigitAndNonDigitExponent() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[123e4b]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[123e4b]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(STRING, reader.peek());
   }
 
   public void testStringAsNumberWithNonDigitExponent() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[123eb]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[123eb]"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(STRING, reader.peek());
   }
 
   public void testEmptyStringName() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("{\"\":true}"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("{\"\":true}"), JsonOption.LENIENT);
+
     assertEquals(BEGIN_OBJECT, reader.peek());
     reader.beginObject();
     assertEquals(NAME, reader.peek());
@@ -1628,8 +1604,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testLenientExtraCommasInMaps() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("{\"a\":\"b\",}"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("{\"a\":\"b\",}"), JsonOption.LENIENT);
+
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals("b", reader.nextString());
@@ -1693,8 +1669,8 @@ public final class JsonReaderTest extends TestCase {
    * during peek rather than during nextString().
    */
   public void testUnterminatedStringFailure() throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader("[\"string"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader("[\"string"), JsonOption.LENIENT);
+
     reader.beginArray();
     assertEquals(JsonToken.STRING, reader.peek());
     try {
@@ -1705,8 +1681,8 @@ public final class JsonReaderTest extends TestCase {
   }
 
   private void assertDocument(final String document, final Object... expectations) throws MalformedJsonException {
-    final JsonReader reader = new JsonReader(reader(document));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(reader(document), JsonOption.LENIENT);
+
     for (final Object expectation : expectations) {
       if (expectation == BEGIN_OBJECT) {
         reader.beginObject();

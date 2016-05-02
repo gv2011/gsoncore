@@ -20,7 +20,7 @@ package com.github.gv2011.jsoncore.imp;
 import java.io.IOException;
 import java.io.StringReader;
 
-import com.github.gv2011.jsoncore.imp.JsonReader;
+import com.github.gv2011.jsoncore.JsonOption;
 
 import junit.framework.TestCase;
 
@@ -137,8 +137,7 @@ public class JsonReaderPathTest extends TestCase {
   }
 
   public void testMultipleTopLevelValuesInOneDocument() throws IOException {
-    final JsonReader reader = new JsonReader(new StringReader("[][]"));
-    reader.setLenient(true);
+    final JsonReader reader = new JsonReader(new StringReader("[][]"), JsonOption.LENIENT);
     reader.beginArray();
     reader.endArray();
     assertEquals("$", reader.getPath());

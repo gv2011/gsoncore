@@ -23,6 +23,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 
+import com.github.gv2011.jsoncore.JsonOption;
+
 /**
  * A class representing an element of Json. It could either be a {@link JsonObject}, a
  * {@link JsonArray}, a {@link JsonPrimitive} or a {@link JsonNull}.
@@ -319,8 +321,7 @@ public abstract class JsonElement {
   public String toString() {
     try {
       final StringWriter stringWriter = new StringWriter();
-      final JsonWriter jsonWriter = new JsonWriter(stringWriter);
-      jsonWriter.setLenient(true);
+      final JsonWriter jsonWriter = new JsonWriter(stringWriter, JsonOption.LENIENT);
       write(jsonWriter, this);
       return stringWriter.toString();
     } catch (final IOException e) {
