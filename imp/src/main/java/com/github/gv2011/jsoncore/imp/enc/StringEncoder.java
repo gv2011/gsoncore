@@ -1,6 +1,6 @@
-package com.github.gv2011.jsoncore.imp;
+package com.github.gv2011.jsoncore.imp.enc;
 
-class JsonStringEncoder extends AbstractJsonEncoder<String>{
+public class StringEncoder extends AbstractJsonEncoder<String>{
 
     /*
    * From RFC 7159, "All Unicode characters may be placed within the
@@ -37,11 +37,11 @@ class JsonStringEncoder extends AbstractJsonEncoder<String>{
 
   private final boolean htmlSafe;
 
-  JsonStringEncoder() {
+  public StringEncoder() {
     this(false);
   }
 
-  JsonStringEncoder(final boolean htmlSafe) {
+  public StringEncoder(final boolean htmlSafe) {
     this.htmlSafe = htmlSafe;
   }
 

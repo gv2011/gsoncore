@@ -9,6 +9,9 @@ import com.github.gv2011.jsoncore.JsonFactory;
 import com.github.gv2011.jsoncore.JsonOption;
 import com.github.gv2011.jsoncore.JsonParser;
 import com.github.gv2011.jsoncore.JsonSerializer;
+import com.github.gv2011.jsoncore.imp.enc.EncoderSelector;
+import com.github.gv2011.jsoncore.imp.enc.StringEncoder;
+import com.github.gv2011.jsoncore.imp.enc.ToStringEncoder;
 
 public class JsonFactoryImp implements JsonFactory{
 
@@ -21,7 +24,8 @@ public class JsonFactoryImp implements JsonFactory{
 
   @Override
   public JsonSerializer newJsonSerializer(final Writer out, final JsonOption... jsonOptions) {
-    return new JsonWriter(out, this, jsonOptions);
+    final boolean lenient = Arrays.asList(jsonOptions).contains(JsonOption.LENIENT);
+    return new JsonWriter(out, new EncoderSelector(lenient), 0, jsonOptions);
   }
 
 
@@ -31,7 +35,7 @@ public class JsonFactoryImp implements JsonFactory{
     JsonEncoder<T> encoder;
     if(primitive.equals(String.class)){
       encoder = (JsonEncoder<T>)
-        new JsonStringEncoder(Arrays.asList(jsonOptions).contains(JsonOption.HTML_SAFE))
+        new StringEncoder(Arrays.asList(jsonOptions).contains(JsonOption.HTML_SAFE))
       ;
     }
     else if(primitive.equals(Long.class)||primitive.equals(long.class)){

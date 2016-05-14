@@ -24,6 +24,7 @@ import static com.github.gv2011.jsoncore.imp.JsonScope.EMPTY_OBJECT;
 import static com.github.gv2011.jsoncore.imp.JsonScope.NONEMPTY_ARRAY;
 import static com.github.gv2011.jsoncore.imp.JsonScope.NONEMPTY_DOCUMENT;
 import static com.github.gv2011.jsoncore.imp.JsonScope.NONEMPTY_OBJECT;
+import static com.github.gv2011.util.ex.Exceptions.format;
 import static com.github.gv2011.util.ex.Exceptions.run;
 
 import java.io.IOException;
@@ -34,18 +35,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.github.gv2011.jsoncore.JsonEncoder;
-import com.github.gv2011.jsoncore.JsonFactory;
 import com.github.gv2011.jsoncore.JsonOption;
-import com.github.gv2011.jsoncore.JsonSerializer;
+import com.github.gv2011.jsoncore.imp.enc.EncoderSelector;
+import com.github.gv2011.util.StringUtils;
+import com.github.gv2011.util.ser.ElementarySerializer;
 
 
-public class JsonWriter implements JsonSerializer {
+public class JsonWriter implements ElementarySerializer<Object,String,Appendable> {
 
 
   /** The output data, containing at most one top-level array or object. */
-  private final Writer out;
+  private final Appendable out;
 
-  private int[] stack = new int[32];
+  private byte[] stack = new byte[32];
   private int stackSize = 0;
   {
     push(EMPTY_DOCUMENT);
@@ -53,75 +55,59 @@ public class JsonWriter implements JsonSerializer {
 
   /**
    * A string containing a full set of spaces for a single level of
-   * indentation, or null for no pretty printing.
+   * indentation, or an empty string for no pretty printing.
    */
-  private String indent;
+  private final String indent;
 
   /**
    * The name/value separator; either ":" or ": ".
    */
-  private String separator = ":";
+  private final String separator;
 
   private final boolean lenient;
 
   private final boolean htmlSafe;
 
-  private String deferredName;
-
-  private final boolean serializeNulls;
   private final Set<JsonOption> optList;
 
+  private final JsonEncoder<Void> nullEncoder;
   private final JsonEncoder<String> stringEncoder;
-  private final JsonEncoder<Long> longEncoder;
+
+  private final EncoderSelector encoderSelector;
+
+  private boolean inKey;
+
 
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
    * For best performance, ensure {@link Writer} is buffered; wrapping in
    * {@link java.io.BufferedWriter BufferedWriter} if necessary.
-   */
-  public JsonWriter(final Writer out, final JsonFactory factory, final JsonOption... options) {
-    this.out = out;
-    optList = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(options)));
-    lenient = optList.contains(JsonOption.LENIENT);
-    htmlSafe = optList.contains(JsonOption.HTML_SAFE);
-    serializeNulls = !optList.contains(JsonOption.OMIT_NULLS);
-    stringEncoder = factory.newJsonEncoder(String.class, options);
-    longEncoder = factory.newJsonEncoder(Long.class, options);
-  }
-
-  /**
+   *
    * Sets the indentation string to be repeated for each level of indentation
    * in the encoded document. If {@code indent.isEmpty()} the encoded document
    * will be compact. Otherwise the encoded document will be more
    * human-readable.
    *
-   * @param indent a string containing only whitespace.
+   * @param indent the width of indentation (number of blanks).
+   *   If indent==0 the encoded document will be compact. Otherwise the encoded document will be more
+   *   human-readable.
+   *
    */
-  public final void setIndent(final String indent) {
-    if (indent.length() == 0) {
-      this.indent = null;
-      separator = ":";
-    } else {
-      this.indent = indent;
-      separator = ": ";
-    }
+  public JsonWriter(
+    final Writer out, final EncoderSelector encoderSelector, final int indent, final JsonOption... options
+  ) {
+    this.out = out;
+    optList = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(options)));
+    lenient = optList.contains(JsonOption.LENIENT);
+    htmlSafe = optList.contains(JsonOption.HTML_SAFE);
+    this.encoderSelector = encoderSelector;
+    nullEncoder = encoderSelector.tryGetEncoder(Void.class).get();
+    stringEncoder = encoderSelector.tryGetEncoder(String.class).get();
+
+    this.indent = StringUtils.multiply(" ",indent);
+    separator = indent<=0?":":": ";
   }
 
-  /**
-   * Configure this writer to relax its syntax rules. By default, this writer
-   * only emits well-formed JSON as specified by <a
-   * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. Setting the writer
-   * to lenient permits the following:
-   * <ul>
-   *   <li>Top-level values of any type. With strict writing, the top-level
-   *       value must be an object or an array.
-   *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
-   *       Double#isInfinite() infinities}.
-   * </ul>
-   */
-//  public final void setLenient(final boolean lenient) {
-//    this.lenient = lenient;
-//  }
 
   /**
    * Returns true if this writer has relaxed syntax rules.
@@ -130,16 +116,6 @@ public class JsonWriter implements JsonSerializer {
     return lenient;
   }
 
-  /**
-   * Configure this writer to emit JSON that's safe for direct inclusion in HTML
-   * and XML documents. This escapes the HTML characters {@code <}, {@code >},
-   * {@code &} and {@code =} before writing them to the stream. Without this
-   * setting, your XML/HTML encoder should replace these characters with the
-   * corresponding escape sequences.
-   */
-//  public final void setHtmlSafe(final boolean htmlSafe) {
-//    this.htmlSafe = htmlSafe;
-//  }
 
   /**
    * Returns true if this writer writes JSON that's safe for inclusion in HTML
@@ -149,71 +125,41 @@ public class JsonWriter implements JsonSerializer {
     return htmlSafe;
   }
 
-  /**
-   * Sets whether object members are serialized when their value is null.
-   * This has no impact on array elements. The default is true.
-   */
-//  public final void setSerializeNulls(final boolean serializeNulls) {
-//    this.serializeNulls = serializeNulls;
-//  }
 
-  /**
-   * Returns true if object members are serialized when their value is null.
-   * This has no impact on array elements. The default is true.
-   */
-  public final boolean getSerializeNulls() {
-    return serializeNulls;
+  @Override
+  public void startList(){
+    checkNotInKey();
+    open(EMPTY_ARRAY, "[");
   }
 
-  /**
-   * Begins encoding a new array. Each call to this method must be paired with
-   * a call to {@link #endArray}.
-   *
-   * @return this writer.
-   */
-  @Override
-  public JsonWriter beginArray(){
-    writeDeferredName();
-    return open(EMPTY_ARRAY, "[");
+
+  private void checkNotInKey() {
+    if(inKey) throw new IllegalStateException("Only strings may be used as keys.");
   }
 
-  /**
-   * Ends encoding the current array.
-   *
-   * @return this writer.
-   */
+
   @Override
-  public JsonWriter endArray(){
-    return close(EMPTY_ARRAY, NONEMPTY_ARRAY, "]");
+  public void endList(){
+    close(EMPTY_ARRAY, NONEMPTY_ARRAY, "]");
   }
 
-  /**
-   * Begins encoding a new object. Each call to this method must be paired
-   * with a call to {@link #endObject}.
-   *
-   * @return this writer.
-   */
   @Override
-  public JsonWriter beginObject(){
-    writeDeferredName();
-    return open(EMPTY_OBJECT, "{");
+  public void startMap(){
+    checkNotInKey();
+    open(EMPTY_OBJECT, "{");
   }
 
-  /**
-   * Ends encoding the current object.
-   *
-   * @return this writer.
-   */
+
   @Override
-  public JsonWriter endObject(){
-    return close(EMPTY_OBJECT, NONEMPTY_OBJECT, "}");
+  public void endMap(){
+    close(EMPTY_OBJECT, NONEMPTY_OBJECT, "}");
   }
 
   /**
    * Enters a new scope by appending any necessary whitespace and the given
    * bracket.
    */
-  private JsonWriter open(final int empty, final String openBracket){
+  private JsonWriter open(final byte empty, final String openBracket){
     beforeValue();
     push(empty);
     write(openBracket);
@@ -221,7 +167,7 @@ public class JsonWriter implements JsonSerializer {
   }
 
   private void write(final String str) {
-    run(()->out.write(str));
+    run(()->out.append(str));
   }
 
   /**
@@ -234,8 +180,8 @@ public class JsonWriter implements JsonSerializer {
     if (context != nonempty && context != empty) {
       throw new IllegalStateException("Nesting problem.");
     }
-    if (deferredName != null) {
-      throw new IllegalStateException("Dangling name: " + deferredName);
+    if (inKey) {
+      throw new IllegalStateException("In key.");
     }
 
     stackSize--;
@@ -246,9 +192,9 @@ public class JsonWriter implements JsonSerializer {
     return this;
   }
 
-  private void push(final int newTop) {
+  private void push(final byte newTop) {
     if (stackSize == stack.length) {
-      final int[] newStack = new int[stackSize * 2];
+      final byte[] newStack = new byte[stackSize * 2];
       System.arraycopy(stack, 0, newStack, 0, stackSize);
       stack = newStack;
     }
@@ -259,7 +205,7 @@ public class JsonWriter implements JsonSerializer {
    * Returns the value on the top of the stack.
    */
   private int peek() {
-    if (stackSize == 0) {
+    if (isClosed()) {
       throw new IllegalStateException("JsonWriter is closed.");
     }
     return stack[stackSize - 1];
@@ -268,191 +214,59 @@ public class JsonWriter implements JsonSerializer {
   /**
    * Replace the value on the top of the stack with the given value.
    */
-  private void replaceTop(final int topOfStack) {
+  private void replaceTop(final byte topOfStack) {
     stack[stackSize - 1] = topOfStack;
   }
 
-  /**
-   * Encodes the property name.
-   *
-   * @param name the name of the forthcoming value. May not be null.
-   * @return this writer.
-   */
-  @Override
-  public JsonWriter name(final String name){
-    if (name == null) {
-      throw new NullPointerException("name == null");
-    }
-    if (deferredName != null) {
-      throw new IllegalStateException();
-    }
-    if (stackSize == 0) {
-      throw new IllegalStateException("JsonWriter is closed.");
-    }
-    deferredName = name;
-    return this;
+
+
+  public boolean isClosed() {
+    return stackSize == 0;
   }
 
-  private void writeDeferredName(){
-    if (deferredName != null) {
-      beforeName();
-      stringEncoder.encode(deferredName, out);
-      deferredName = null;
-    }
+  private void checkNotClosed(){
+    if (isClosed()) throw new IllegalStateException("JsonWriter is closed.");
   }
 
-  /**
-   * Encodes {@code value}.
-   *
-   * @param value the literal string value, or null to encode a null literal.
-   * @return this writer.
-   */
-  @Override
-  public JsonWriter value(final String value){
-    if (value == null) {
-      return nullValue();
-    }
-    writeDeferredName();
-    beforeValue();
-    stringEncoder.encode(value, out);
-    return this;
-  }
-
-  /**
-   * Writes {@code value} directly to the writer without quoting or
-   * escaping.
-   *
-   * @param value the literal string value, or null to encode a null literal.
-   * @return this writer.
-   */
-  public JsonWriter jsonValue(final String value){
-    if (value == null) {
-      return nullValue();
-    }
-    writeDeferredName();
-    beforeValue();
-    append(value);
-    return this;
-  }
 
   private void append(final String str) {
     run(()->out.append(str));
   }
 
-  /**
-   * Encodes {@code null}.
-   *
-   * @return this writer.
-   */
+  private void append(final char c) {
+    run(()->out.append(c));
+  }
+
+
+
   @Override
-  public JsonWriter nullValue(){
-    if (deferredName != null) {
-      if (serializeNulls) {
-        writeDeferredName();
-      } else {
-        deferredName = null;
-        return this; // skip the name and the value
-      }
+  public void serializeElementary(final Object value){
+    if(inKey){
+      inKey=false;
+      if(value.getClass()!=String.class) throw new IllegalArgumentException(
+        format("Only strings allowed as keys.", value.getClass())
+      );
     }
     beforeValue();
-    write("null");
-    return this;
+    encode(value, out);
+  }
+
+  private String encode(final Object value) {
+    return encoderSelector.selectEncoder(value).encode(value);
+  }
+
+  private void encode(final Object value, final Appendable out) {
+    encoderSelector.selectEncoder(value).encode(value, out);
   }
 
   /**
-   * Encodes {@code value}.
-   *
-   * @return this writer.
-   */
-  @Override
-  public JsonWriter value(final boolean value){
-    writeDeferredName();
-    beforeValue();
-    write(value ? "true" : "false");
-    return this;
-  }
-
-  /**
-   * Encodes {@code value}.
-   *
-   * @return this writer.
-   */
-  @Override
-  public JsonWriter value(final Boolean value){
-    if (value == null) {
-      return nullValue();
-    }
-    writeDeferredName();
-    beforeValue();
-    write(value ? "true" : "false");
-    return this;
-  }
-
-  /**
-   * Encodes {@code value}.
-   *
-   * @param value a finite value. May not be {@link Double#isNaN() NaNs} or
-   *     {@link Double#isInfinite() infinities}.
-   * @return this writer.
-   */
-  @Override
-  public JsonWriter value(final double value){
-    if (Double.isNaN(value) || Double.isInfinite(value)) {
-      throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
-    }
-    writeDeferredName();
-    beforeValue();
-    append(Double.toString(value));
-    return this;
-  }
-
-  /**
-   * Encodes {@code value}.
-   *
-   * @return this writer.
-   */
-  @Override
-  public JsonWriter value(final long value){
-    writeDeferredName();
-    beforeValue();
-    longEncoder.encode(value, out);
-    return this;
-  }
-
-  /**
-   * Encodes {@code value}.
-   *
-   * @param value a finite value. May not be {@link Double#isNaN() NaNs} or
-   *     {@link Double#isInfinite() infinities}.
-   * @return this writer.
-   */
-  @Override
-  public JsonWriter value(final Number value){
-    if (value == null) {
-      return nullValue();
-    }
-
-    writeDeferredName();
-    final String string = value.toString();
-    if (!lenient
-        && (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN"))) {
-      throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
-    }
-    beforeValue();
-    append(string);
-    return this;
-  }
-
-  /**
-   * Ensures all buffered data is written to the underlying {@link Writer}
-   * and flushes that writer.
+   * Ensures all buffered data is written to the underlying {@link Appendable}.
    */
   @Override
   public void flush(){
-    if (stackSize == 0) {
+    if (isClosed()) {
       throw new IllegalStateException("JsonWriter is closed.");
     }
-    run(out::flush);
   }
 
   /**
@@ -461,9 +275,7 @@ public class JsonWriter implements JsonSerializer {
    * @throws IOException if the JSON document is incomplete.
    */
   @Override
-  public void close(){
-    run(out::close);
-
+  public void endDocument(){
     final int size = stackSize;
     if (size > 1 || size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) {
       throw new IllegalStateException("Incomplete document");
@@ -473,7 +285,7 @@ public class JsonWriter implements JsonSerializer {
 
 
   private void newline(){
-    if (indent == null) {
+    if (indent.isEmpty()) {
       return;
     }
 
@@ -483,19 +295,9 @@ public class JsonWriter implements JsonSerializer {
     }
   }
 
-  /**
-   * Inserts any necessary separators and whitespace before a name. Also
-   * adjusts the stack to expect the name's value.
-   */
-  private void beforeName(){
-    final int context = peek();
-    if (context == NONEMPTY_OBJECT) { // first in object
-      run(()->out.write(','));
-    } else if (context != EMPTY_OBJECT) { // not in an object!
-      throw new IllegalStateException("Nesting problem.");
-    }
-    newline();
-    replaceTop(DANGLING_NAME);
+  @Override
+  public void startBean(){
+    open(EMPTY_OBJECT, "{");
   }
 
   /**
@@ -526,6 +328,17 @@ public class JsonWriter implements JsonSerializer {
       newline();
       break;
 
+    case EMPTY_OBJECT: // first in object
+      replaceTop(DANGLING_NAME);
+      newline();
+      break;
+
+    case NONEMPTY_OBJECT: // another in object
+      replaceTop(DANGLING_NAME);
+      append(',');
+      newline();
+      break;
+
     case DANGLING_NAME: // value for name
       append(separator);
       replaceTop(NONEMPTY_OBJECT);
@@ -535,4 +348,79 @@ public class JsonWriter implements JsonSerializer {
       throw new IllegalStateException("Nesting problem.");
     }
   }
+
+
+  @Override
+  public void startDocument() {
+  }
+
+
+
+  @Override
+  public void endBean() {
+    close(EMPTY_OBJECT, NONEMPTY_OBJECT, "}");
+  }
+
+
+  /**
+   * Inserts any necessary separators and whitespace before a name. Also
+   * adjusts the stack to expect the name's value.
+   */
+  @Override
+  public void startBeanEntry() {
+    final int context = peek();
+    if (context == NONEMPTY_OBJECT) { // first in object
+      this.
+      append(',');
+    } else if (context != EMPTY_OBJECT) { // not in an object!
+      throw new IllegalStateException("Nesting problem.");
+    }
+    newline();
+    replaceTop(DANGLING_NAME);
+  }
+
+
+
+  @Override
+  public void startBeanValue() {
+    // TODO Auto-generated method stub
+
+  }
+
+
+  @Override
+  public void endBeanEntry() {
+    // TODO Auto-generated method stub
+
+  }
+
+
+  @Override
+  public void startMapEntry() {
+    // TODO Auto-generated method stub
+
+  }
+
+
+  @Override
+  public void startMapValue() {
+    // TODO Auto-generated method stub
+
+  }
+
+
+  @Override
+  public void endMapEntry() {
+    // TODO Auto-generated method stub
+
+  }
+
+
+  @Override
+  public void serializeNull() {
+    // TODO Auto-generated method stub
+
+  }
+
+
 }
