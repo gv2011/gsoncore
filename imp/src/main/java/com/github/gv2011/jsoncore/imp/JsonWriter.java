@@ -25,6 +25,7 @@ import static com.github.gv2011.jsoncore.imp.JsonScope.NONEMPTY_ARRAY;
 import static com.github.gv2011.jsoncore.imp.JsonScope.NONEMPTY_DOCUMENT;
 import static com.github.gv2011.jsoncore.imp.JsonScope.NONEMPTY_OBJECT;
 import static com.github.gv2011.util.ex.Exceptions.format;
+import static com.github.gv2011.util.ex.Exceptions.notYetImplementedException;
 import static com.github.gv2011.util.ex.Exceptions.run;
 
 import java.io.IOException;
@@ -36,12 +37,13 @@ import java.util.Set;
 
 import com.github.gv2011.jsoncore.JsonEncoder;
 import com.github.gv2011.jsoncore.JsonOption;
+import com.github.gv2011.jsoncore.JsonSerializer;
 import com.github.gv2011.jsoncore.imp.enc.EncoderSelector;
 import com.github.gv2011.util.StringUtils;
 import com.github.gv2011.util.ser.ElementarySerializer;
 
 
-public class JsonWriter implements ElementarySerializer<Object,String,Appendable> {
+public class JsonWriter implements ElementarySerializer<Object,String,Appendable>, JsonSerializer {
 
 
   /** The output data, containing at most one top-level array or object. */
@@ -384,42 +386,133 @@ public class JsonWriter implements ElementarySerializer<Object,String,Appendable
   @Override
   public void startBeanValue() {
     // TODO Auto-generated method stub
-
+    throw notYetImplementedException();
   }
 
 
   @Override
   public void endBeanEntry() {
     // TODO Auto-generated method stub
-
+    throw notYetImplementedException();
   }
 
 
   @Override
   public void startMapEntry() {
     // TODO Auto-generated method stub
-
+    throw notYetImplementedException();
   }
 
 
   @Override
   public void startMapValue() {
     // TODO Auto-generated method stub
-
+    throw notYetImplementedException();
   }
 
 
   @Override
   public void endMapEntry() {
     // TODO Auto-generated method stub
-
+    throw notYetImplementedException();
   }
 
 
   @Override
   public void serializeNull() {
     // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
 
+
+  @Override
+  public void close() throws IOException {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer beginArray() {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer endArray() {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer beginObject() {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer endObject() {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer name(final String name) {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer value(final String value) {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer nullValue() {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer value(final boolean value) {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer value(final Boolean value) {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer value(final double value) {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer value(final long value) {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
+  }
+
+
+  @Override
+  public JsonSerializer value(final Number value) {
+    // TODO Auto-generated method stub
+    throw notYetImplementedException();
   }
 
 
