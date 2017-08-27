@@ -11,4 +11,6 @@ public interface JsonFactory {
 
   <T> JsonEncoder<T> newJsonEncoder(Class<T> primitive, JsonOption... jsonOptions);
 
+  JsonReader newJsonReader();
+
 }
