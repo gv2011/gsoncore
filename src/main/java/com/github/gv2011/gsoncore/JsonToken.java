@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.jsoncore;
+package com.github.gv2011.gsoncore;
 
 /**
  * A structure, name or value type in a JSON-encoded string.

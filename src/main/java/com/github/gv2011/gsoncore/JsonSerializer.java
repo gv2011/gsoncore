@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.jsoncore;
+package com.github.gv2011.gsoncore;
 
 import java.io.Closeable;
 import java.io.Flushable;

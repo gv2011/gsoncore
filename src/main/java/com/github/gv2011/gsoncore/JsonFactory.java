@@ -1,4 +1,4 @@
-package com.github.gv2011.jsoncore;
+package com.github.gv2011.gsoncore;
 
 import java.io.Reader;
 import java.io.Writer;

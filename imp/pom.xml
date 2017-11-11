@@ -4,11 +4,11 @@
 
 	<parent>
 		<groupId>com.github.gv2011</groupId>
-		<artifactId>jsoncore</artifactId>
+		<artifactId>gsoncore</artifactId>
 		<version>0.0.3-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>jsoncore-imp</artifactId>
+	<artifactId>gsoncore-imp</artifactId>
 
 	<dependencies>
 		<dependency>
