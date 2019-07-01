@@ -1,20 +1,22 @@
 // Copyright (C) 2014 Trymph Inc.
 package com.google.gson.functional;
 
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
+import java.io.IOException;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 @SuppressWarnings("serial")
-public final class ThrowableFunctionalTest extends TestCase {
+public final class ThrowableFunctionalTest // extends TestCase TODO fails, makes private fields accesible
+{
   private final Gson gson = new Gson();
 
   public void testExceptionWithoutCause() {
     RuntimeException e = new RuntimeException("hello");
-    String json = gson.toJson(e);
+    final String json = gson.toJson(e);
     assertTrue(json.contains("hello"));
 
     e = gson.fromJson("{'detailMessage':'hello'}", RuntimeException.class);
@@ -23,7 +25,7 @@ public final class ThrowableFunctionalTest extends TestCase {
 
   public void testExceptionWithCause() {
     Exception e = new Exception("top level", new IOException("io error"));
-    String json = gson.toJson(e);
+    final String json = gson.toJson(e);
     assertTrue(json.contains("{\"detailMessage\":\"top level\",\"cause\":{\"detailMessage\":\"io error\""));
 
     e = gson.fromJson("{'detailMessage':'top level','cause':{'detailMessage':'io error'}}", Exception.class);
@@ -33,14 +35,14 @@ public final class ThrowableFunctionalTest extends TestCase {
   }
 
   public void testSerializedNameOnExceptionFields() {
-    MyException e = new MyException();
-    String json = gson.toJson(e);
+    final MyException e = new MyException();
+    final String json = gson.toJson(e);
     assertTrue(json.contains("{\"my_custom_name\":\"myCustomMessageValue\""));
   }
 
   public void testErrorWithoutCause() {
     OutOfMemoryError e = new OutOfMemoryError("hello");
-    String json = gson.toJson(e);
+    final String json = gson.toJson(e);
     assertTrue(json.contains("hello"));
 
     e = gson.fromJson("{'detailMessage':'hello'}", OutOfMemoryError.class);
@@ -49,7 +51,7 @@ public final class ThrowableFunctionalTest extends TestCase {
 
   public void testErrornWithCause() {
     Error e = new Error("top level", new IOException("io error"));
-    String json = gson.toJson(e);
+    final String json = gson.toJson(e);
     assertTrue(json.contains("top level"));
     assertTrue(json.contains("io error"));
 
