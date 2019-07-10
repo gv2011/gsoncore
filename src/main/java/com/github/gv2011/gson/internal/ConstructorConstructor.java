@@ -101,7 +101,7 @@ public final class ConstructorConstructor {
       if (!constructor.isAccessible()) {
         try {
           //TODO Hack to keep tests working, but they should be adapted.
-          Class.forName("com.google.gson.test.TestMarker");
+          Class.forName("com.github.gv2011.gson.test.TestMarker");
           constructor.setAccessible(true);
         } catch (final ClassNotFoundException e) {}
       }
