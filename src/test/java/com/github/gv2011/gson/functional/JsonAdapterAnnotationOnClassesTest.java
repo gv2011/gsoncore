@@ -89,6 +89,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
    */
   public void testRegisteredSerializerOverridesJsonAdapter() {
     JsonSerializer<A> serializer = new JsonSerializer<A>() {
+      @Override
       public JsonElement serialize(A src, Type typeOfSrc,
           JsonSerializationContext context) {
         return new JsonPrimitive("registeredSerializer");
@@ -108,6 +109,7 @@ public final class JsonAdapterAnnotationOnClassesTest extends TestCase {
    */
   public void testRegisteredDeserializerOverridesJsonAdapter() {
     JsonDeserializer<A> deserializer = new JsonDeserializer<A>() {
+      @Override
       public A deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) throws JsonParseException {
         return new A("registeredDeserializer");
