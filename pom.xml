@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>gsoncore</artifactId>
-  <version>0.6</version>
+  <version>0.7-SNAPSHOT</version>
   <name>Gson</name>
 
   <description>
@@ -21,7 +21,7 @@
     <connection>scm:git:git@github.com:gv2011/gsoncore.git</connection>
     <developerConnection>scm:git:git@github.com:gv2011/gsoncore.git</developerConnection>
     <url>https://github.com/gv2011/gsoncore</url>
-    <tag>gsoncore-0.6</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <inceptionYear>2016</inceptionYear><!-- fork year -->
