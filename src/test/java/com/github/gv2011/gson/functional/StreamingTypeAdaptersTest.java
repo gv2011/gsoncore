@@ -158,6 +158,7 @@ public final class StreamingTypeAdaptersTest extends TestCase {
         String[] values = in.nextString().split(",");
         return new Person(values[0], Integer.parseInt(values[1]));
       }
+      @Override
       public void write(JsonWriter out, Person person) throws IOException {
         out.value(person.name + "," + person.age);
       }

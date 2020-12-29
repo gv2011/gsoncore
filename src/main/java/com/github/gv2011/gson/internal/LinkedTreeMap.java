@@ -38,6 +38,7 @@ import java.util.Set;
 public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
   @SuppressWarnings({ "unchecked", "rawtypes" }) // to avoid Comparable<Comparable<Comparable<...>>>
   private static final Comparator<Comparable> NATURAL_ORDER = new Comparator<Comparable>() {
+    @Override
     public int compare(Comparable a, Comparable b) {
       return a.compareTo(b);
     }
@@ -463,14 +464,17 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       next.prev = this;
     }
 
+    @Override
     public K getKey() {
       return key;
     }
 
+    @Override
     public V getValue() {
       return value;
     }
 
+    @Override
     public V setValue(V value) {
       V oldValue = this.value;
       this.value = value;
@@ -531,6 +535,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     LinkedTreeMapIterator() {
     }
 
+    @Override
     public final boolean hasNext() {
       return next != header;
     }
@@ -547,6 +552,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
       return lastReturned = e;
     }
 
+    @Override
     public final void remove() {
       if (lastReturned == null) {
         throw new IllegalStateException();
@@ -564,6 +570,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
 
     @Override public Iterator<Entry<K, V>> iterator() {
       return new LinkedTreeMapIterator<Entry<K, V>>() {
+        @Override
         public Entry<K, V> next() {
           return nextNode();
         }
@@ -599,6 +606,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
 
     @Override public Iterator<K> iterator() {
       return new LinkedTreeMapIterator<K>() {
+        @Override
         public K next() {
           return nextNode().key;
         }
