@@ -223,6 +223,9 @@ public class JsonReader implements Closeable {
   private static final int NUMBER_CHAR_EXP_E = 5;
   private static final int NUMBER_CHAR_EXP_SIGN = 6;
   private static final int NUMBER_CHAR_EXP_DIGIT = 7;
+  
+  private static final int QUOTATION_MARK = 0x22;
+  private static final int REVERSE_SOLIDUS = 0x5C;
 
   /** The input JSON. */
   private final Reader in;
@@ -1016,6 +1019,8 @@ public class JsonReader implements Closeable {
         } else if (c == '\n') {
           lineNumber++;
           lineStart = p;
+        } else if (!lenient) {
+          if(!isLegal(c)) throw syntaxError("Illegal character "+Integer.toHexString((int)c)+".");
         }
       }
 
@@ -1025,6 +1030,15 @@ public class JsonReader implements Closeable {
         throw syntaxError("Unterminated string");
       }
     }
+  }
+
+  private boolean isLegal(int c) {
+    return 
+      c >  0x1F &&
+      c != QUOTATION_MARK &&
+      c != REVERSE_SOLIDUS //&&
+//      (c < 0xD800 || c > 0xDFFF)
+    ;
   }
 
   /**
@@ -1546,19 +1560,33 @@ public class JsonReader implements Closeable {
 
     case 'f':
       return '\f';
+      
+    case '"':
+     return escaped;
+
+    case '\\':
+     return escaped;
 
     case '\n':
       lineNumber++;
       lineStart = pos;
-      // fall-through
-
+      //$FALL-THROUGH$
     case '\'':
-    case '"':
-    case '\\':
     default:
+      if(!lenient) throw syntaxError("Illegal escape character"+((int)escaped));
       return escaped;
     }
   }
+  
+  
+//    \b U+0008 BACKSPACE
+//    \t U+0009 CHARACTER TABULATION ("tab")
+//    \n U+000A LINE FEED ("newline")
+//    \f U+000C FORM FEED
+//    \r U+000D CARRIAGE RETURN
+//    \" U+0022 QUOTATION MARK
+//    \\ U+005C REVERSE SOLIDUS ("backslash"), and
+
 
   /**
    * Throws a new IO exception with the given message and a context snippet

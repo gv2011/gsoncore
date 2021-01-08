@@ -38,21 +38,25 @@ public final class Streams {
     throw new UnsupportedOperationException();
   }
 
+  public static JsonElement parse(JsonReader reader) throws JsonParseException {
+    return parse(reader, false);
+  }
+  
   /**
    * Takes a reader in any state and returns the next value as a JsonElement.
    */
-  public static JsonElement parse(JsonReader reader) throws JsonParseException {
+  public static JsonElement parse(JsonReader reader, boolean canonical) throws JsonParseException {
     boolean isEmpty = true;
     try {
       reader.peek();
       isEmpty = false;
-      return TypeAdapters.JSON_ELEMENT.read(reader);
+      return (canonical ? TypeAdapters.JSON_ELEMENT_CANONICAL : TypeAdapters.JSON_ELEMENT).read(reader);
     } catch (EOFException e) {
       /*
        * For compatibility with JSON 1.5 and earlier, we return a JsonNull for
        * empty documents instead of throwing.
        */
-      if (isEmpty) {
+      if (isEmpty && !canonical) {
         return JsonNull.INSTANCE;
       }
       // The stream ended prematurely so it is likely a syntax error.

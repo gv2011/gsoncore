@@ -32,6 +32,16 @@ import com.github.gv2011.gson.stream.MalformedJsonException;
  * @since 1.3
  */
 public final class JsonParser {
+  
+  private final boolean strict;
+  
+  public JsonParser(){
+    this(false);
+  }
+
+  public JsonParser(boolean strict){
+    this.strict = strict;
+  }
 
   /**
    * Parses the specified JSON string into a parse tree
@@ -79,9 +89,10 @@ public final class JsonParser {
    */
   public JsonElement parse(JsonReader json) throws JsonIOException, JsonSyntaxException {
     boolean lenient = json.isLenient();
-    json.setLenient(true);
+    assert !(strict && lenient);
+    if(!strict) json.setLenient(true);
     try {
-      return Streams.parse(json);
+      return Streams.parse(json, strict);
     } catch (StackOverflowError e) {
       throw new JsonParseException("Failed parsing JSON source: " + json + " to Json", e);
     } catch (OutOfMemoryError e) {

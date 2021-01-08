@@ -27,7 +27,9 @@ import static com.github.gv2011.gson.stream.JsonScope.NONEMPTY_OBJECT;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.util.stream.IntStream;
 
 /**
  * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -144,7 +146,7 @@ public class JsonWriter implements Closeable, Flushable {
   static {
     REPLACEMENT_CHARS = new String[128];
     for (int i = 0; i <= 0x1f; i++) {
-      REPLACEMENT_CHARS[i] = String.format("\\u%04x", (int) i);
+      REPLACEMENT_CHARS[i] = String.format("\\u%04X", (int) i);
     }
     REPLACEMENT_CHARS['"'] = "\\\"";
     REPLACEMENT_CHARS['\\'] = "\\\\";
@@ -188,6 +190,8 @@ public class JsonWriter implements Closeable, Flushable {
   private String deferredName;
 
   private boolean serializeNulls = true;
+  
+  private boolean canonical;
 
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
@@ -216,6 +220,7 @@ public class JsonWriter implements Closeable, Flushable {
     } else {
       this.indent = indent;
       this.separator = ": ";
+      this.canonical = false;
     }
   }
 
@@ -233,6 +238,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public final void setLenient(boolean lenient) {
     this.lenient = lenient;
+    if(lenient) canonical = false;
   }
 
   /**
@@ -251,6 +257,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public final void setHtmlSafe(boolean htmlSafe) {
     this.htmlSafe = htmlSafe;
+    if(htmlSafe) canonical = false;
   }
 
   /**
@@ -267,6 +274,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public final void setSerializeNulls(boolean serializeNulls) {
     this.serializeNulls = serializeNulls;
+    if(!serializeNulls) canonical = false;
   }
 
   /**
@@ -274,6 +282,24 @@ public class JsonWriter implements Closeable, Flushable {
    * This has no impact on array elements. The default is true.
    */
   public final boolean getSerializeNulls() {
+    return serializeNulls;
+  }
+
+  public final void setCanonical(boolean canonical) {
+    this.canonical = canonical;
+    if(canonical){
+      lenient = false;
+      serializeNulls = true;
+      htmlSafe = false;
+      setIndent("");
+    }
+  }
+
+  /**
+   * Returns true if object members are serialized when their value is null.
+   * This has no impact on array elements. The default is true.
+   */
+  public final boolean getCanonical() {
     return serializeNulls;
   }
 
@@ -381,6 +407,7 @@ public class JsonWriter implements Closeable, Flushable {
    *
    * @param name the name of the forthcoming value. May not be null.
    * @return this writer.
+   * @throws IOException 
    */
   public JsonWriter name(String name) throws IOException {
     if (name == null) {
@@ -549,6 +576,11 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   private void string(String value) throws IOException {
+    if(canonical) stringCanonical(value); 
+    else stringDefault(value);
+  }
+
+  private void stringDefault(String value) throws IOException {
     String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
     out.write("\"");
     int last = 0;
@@ -578,6 +610,44 @@ public class JsonWriter implements Closeable, Flushable {
       out.write(value, last, length - last);
     }
     out.write("\"");
+  }
+
+  private void stringCanonical(String value) throws IOException {
+    out.write("\"");
+    final char[] buf = new char[2];
+    value.codePoints()
+      .flatMap(c->encode(c))
+      .forEachOrdered(c->{
+        final int len = Character.toChars(c, buf, 0);
+        try {
+          out.write(buf, 0, len);
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      })
+    ;
+    out.write("\"");
+  }
+  
+  private IntStream encode(int codePoint) {
+    final IntStream result;
+    if (codePoint < 128) {
+       final String replacement = REPLACEMENT_CHARS[codePoint];
+       if (replacement == null) {
+         result = IntStream.of(codePoint);
+       }
+       else result = replacement.codePoints();
+    }
+    else{
+      if(codePoint<=Character.MAX_VALUE){          
+        if(Character.isSurrogate((char)codePoint)){
+          result = String.format("\\u%04X", codePoint).codePoints();
+        }
+        else result = IntStream.of(codePoint);
+      }
+      else result = IntStream.of(codePoint);
+    }
+    return result;
   }
 
   private void newline() throws IOException {
