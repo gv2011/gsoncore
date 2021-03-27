@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Google Inc.
+ * Copyright (C) 2016-2021 Vinz (https://github.com/gv2011)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +17,11 @@
 
 package com.github.gv2011.gson.stream;
 
-import java.io.IOException;
-
 /**
  * Thrown when a reader encounters malformed JSON. Some syntax errors can be
- * ignored by calling {@link JsonReader#setLenient(boolean)}.
+ * ignored by calling {@link GsonReader#setLenient(boolean)}.
  */
-public final class MalformedJsonException extends IOException {
+public final class MalformedJsonException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   public MalformedJsonException(String msg) {

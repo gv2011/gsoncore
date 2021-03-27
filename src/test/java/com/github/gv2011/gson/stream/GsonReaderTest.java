@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Google Inc.
+ * Copyright (C) 2016-2021 Vinz (https://github.com/gv2011)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,22 +27,15 @@ import static com.github.gv2011.gson.stream.JsonToken.NULL;
 import static com.github.gv2011.gson.stream.JsonToken.NUMBER;
 import static com.github.gv2011.gson.stream.JsonToken.STRING;
 
-import java.io.EOFException;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
 
-import com.github.gv2011.gson.stream.JsonReader;
-import com.github.gv2011.gson.stream.JsonToken;
-import com.github.gv2011.gson.stream.MalformedJsonException;
-
 import junit.framework.TestCase;
 
-@SuppressWarnings("resource")
-public final class JsonReaderTest extends TestCase {
-  public void testReadArray() throws IOException {
-    JsonReader reader = new JsonReader(reader("[true, true]"));
+public final class GsonReaderTest extends TestCase {
+  public void testReadArray() {
+    GsonReader reader = new GsonReader(reader("[true, true]"));
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     assertEquals(true, reader.nextBoolean());
@@ -49,16 +43,16 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testReadEmptyArray() throws IOException {
-    JsonReader reader = new JsonReader(reader("[]"));
+  public void testReadEmptyArray() {
+    GsonReader reader = new GsonReader(reader("[]"));
     reader.beginArray();
     assertFalse(reader.hasNext());
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testReadObject() throws IOException {
-    JsonReader reader = new JsonReader(reader(
+  public void testReadObject() {
+    GsonReader reader = new GsonReader(reader(
         "{\"a\": \"android\", \"b\": \"banana\"}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
@@ -69,16 +63,16 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testReadEmptyObject() throws IOException {
-    JsonReader reader = new JsonReader(reader("{}"));
+  public void testReadEmptyObject() {
+    GsonReader reader = new GsonReader(reader("{}"));
     reader.beginObject();
     assertFalse(reader.hasNext());
     reader.endObject();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testSkipArray() throws IOException {
-    JsonReader reader = new JsonReader(reader(
+  public void testSkipArray() {
+    GsonReader reader = new GsonReader(reader(
         "{\"a\": [\"one\", \"two\", \"three\"], \"b\": 123}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
@@ -90,7 +84,7 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testSkipArrayAfterPeek() throws Exception {
-    JsonReader reader = new JsonReader(reader(
+    GsonReader reader = new GsonReader(reader(
         "{\"a\": [\"one\", \"two\", \"three\"], \"b\": 123}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
@@ -103,14 +97,14 @@ public final class JsonReaderTest extends TestCase {
   }
 
   public void testSkipTopLevelObject() throws Exception {
-    JsonReader reader = new JsonReader(reader(
+    GsonReader reader = new GsonReader(reader(
         "{\"a\": [\"one\", \"two\", \"three\"], \"b\": 123}"));
     reader.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testSkipObject() throws IOException {
-    JsonReader reader = new JsonReader(reader(
+  public void testSkipObject() {
+    GsonReader reader = new GsonReader(reader(
         "{\"a\": { \"c\": [], \"d\": [true, true, {}] }, \"b\": \"banana\"}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
@@ -124,7 +118,7 @@ public final class JsonReaderTest extends TestCase {
   public void testSkipObjectAfterPeek() throws Exception {
     String json = "{" + "  \"one\": { \"num\": 1 }"
         + ", \"two\": { \"num\": 2 }" + ", \"three\": { \"num\": 3 }" + "}";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginObject();
     assertEquals("one", reader.nextName());
     assertEquals(BEGIN_OBJECT, reader.peek());
@@ -138,8 +132,8 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testSkipInteger() throws IOException {
-    JsonReader reader = new JsonReader(reader(
+  public void testSkipInteger() {
+    GsonReader reader = new GsonReader(reader(
         "{\"a\":123456789,\"b\":-123456789}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
@@ -150,8 +144,8 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testSkipDouble() throws IOException {
-    JsonReader reader = new JsonReader(reader(
+  public void testSkipDouble() {
+    GsonReader reader = new GsonReader(reader(
         "{\"a\":-123.456e-789,\"b\":123456789.0}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
@@ -162,12 +156,12 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testHelloWorld() throws IOException {
+  public void testHelloWorld() {
     String json = "{\n" +
         "   \"hello\": true,\n" +
         "   \"foo\": [\"world\"]\n" +
         "}";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginObject();
     assertEquals("hello", reader.nextName());
     assertEquals(true, reader.nextBoolean());
@@ -179,28 +173,20 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testNulls() {
-    try {
-      new JsonReader(null);
-      fail();
-    } catch (NullPointerException expected) {
-    }
-  }
-
   public void testEmptyString() {
     try {
-      new JsonReader(reader("")).beginArray();
+      new GsonReader(reader("")).beginArray();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
     try {
-      new JsonReader(reader("")).beginObject();
+      new GsonReader(reader("")).beginObject();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testCharacterUnescaping() throws IOException {
+  public void testCharacterUnescaping() {
     String json = "[\"a\","
         + "\"a\\\"\","
         + "\"\\\"\","
@@ -221,7 +207,7 @@ public final class JsonReaderTest extends TestCase {
         + "\"\\u0019\","
         + "\"\\u20AC\""
         + "]";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     assertEquals("a", reader.nextString());
     assertEquals("a\"", reader.nextString());
@@ -246,9 +232,9 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testUnescapingInvalidCharacters() throws IOException {
+  public void testUnescapingInvalidCharacters() {
     String json = "[\"\\u000g\"]";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     try {
       reader.nextString();
@@ -257,37 +243,37 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testUnescapingTruncatedCharacters() throws IOException {
+  public void testUnescapingTruncatedCharacters() {
     String json = "[\"\\u000";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     try {
       reader.nextString();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testUnescapingTruncatedSequence() throws IOException {
+  public void testUnescapingTruncatedSequence() {
     String json = "[\"\\";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     try {
       reader.nextString();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testIntegersWithFractionalPartSpecified() throws IOException {
-    JsonReader reader = new JsonReader(reader("[1.0,1.0,1.0]"));
+  public void testIntegersWithFractionalPartSpecified() {
+    GsonReader reader = new GsonReader(reader("[1.0,1.0,1.0]"));
     reader.beginArray();
     assertEquals(1.0, reader.nextDouble());
     assertEquals(1, reader.nextInt());
     assertEquals(1L, reader.nextLong());
   }
 
-  public void testDoubles() throws IOException {
+  public void testDoubles() {
     String json = "[-0.0,"
         + "1.0,"
         + "1.7976931348623157E308,"
@@ -297,7 +283,7 @@ public final class JsonReaderTest extends TestCase {
         + "2.2250738585072014E-308,"
         + "3.141592653589793,"
         + "2.718281828459045]";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     assertEquals(-0.0, reader.nextDouble());
     assertEquals(1.0, reader.nextDouble());
@@ -312,9 +298,9 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testStrictNonFiniteDoubles() throws IOException {
+  public void testStrictNonFiniteDoubles() {
     String json = "[NaN]";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     try {
       reader.nextDouble();
@@ -323,9 +309,9 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testStrictQuotedNonFiniteDoubles() throws IOException {
+  public void testStrictQuotedNonFiniteDoubles() {
     String json = "[\"NaN\"]";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     try {
       reader.nextDouble();
@@ -334,10 +320,9 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testLenientNonFiniteDoubles() throws IOException {
+  public void testLenientNonFiniteDoubles() {
     String json = "[NaN, -Infinity, Infinity]";
-    JsonReader reader = new JsonReader(reader(json));
-    reader.setLenient(true);
+    GsonReader reader = new GsonReader(reader(json), true);
     reader.beginArray();
     assertTrue(Double.isNaN(reader.nextDouble()));
     assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
@@ -345,10 +330,9 @@ public final class JsonReaderTest extends TestCase {
     reader.endArray();
   }
 
-  public void testLenientQuotedNonFiniteDoubles() throws IOException {
+  public void testLenientQuotedNonFiniteDoubles() {
     String json = "[\"NaN\", \"-Infinity\", \"Infinity\"]";
-    JsonReader reader = new JsonReader(reader(json));
-    reader.setLenient(true);
+    GsonReader reader = new GsonReader(reader(json), true);
     reader.beginArray();
     assertTrue(Double.isNaN(reader.nextDouble()));
     assertEquals(Double.NEGATIVE_INFINITY, reader.nextDouble());
@@ -356,9 +340,9 @@ public final class JsonReaderTest extends TestCase {
     reader.endArray();
   }
 
-  public void testStrictNonFiniteDoublesWithSkipValue() throws IOException {
+  public void testStrictNonFiniteDoublesWithSkipValue() {
     String json = "[NaN]";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     try {
       reader.skipValue();
@@ -367,13 +351,13 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testLongs() throws IOException {
+  public void testLongs() {
     String json = "[0,0,0,"
         + "1,1,1,"
         + "-1,-1,-1,"
         + "-9223372036854775808,"
         + "9223372036854775807]";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     assertEquals(0L, reader.nextLong());
     assertEquals(0, reader.nextInt());
@@ -400,9 +384,9 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void disabled_testNumberWithOctalPrefix() throws IOException {
+  public void disabled_testNumberWithOctalPrefix() {
     String json = "[01]";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     try {
       reader.peek();
@@ -429,8 +413,8 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testBooleans() throws IOException {
-    JsonReader reader = new JsonReader(reader("[true,false]"));
+  public void testBooleans() {
+    GsonReader reader = new GsonReader(reader("[true,false]"));
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     assertEquals(false, reader.nextBoolean());
@@ -438,9 +422,8 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testPeekingUnquotedStringsPrefixedWithBooleans() throws IOException {
-    JsonReader reader = new JsonReader(reader("[truey]"));
-    reader.setLenient(true);
+  public void testPeekingUnquotedStringsPrefixedWithBooleans() {
+    GsonReader reader = new GsonReader(reader("[truey]"), true);
     reader.beginArray();
     assertEquals(STRING, reader.peek());
     try {
@@ -452,7 +435,7 @@ public final class JsonReaderTest extends TestCase {
     reader.endArray();
   }
 
-  public void testMalformedNumbers() throws IOException {
+  public void testMalformedNumbers() {
     assertNotANumber("-");
     assertNotANumber(".");
 
@@ -489,19 +472,17 @@ public final class JsonReaderTest extends TestCase {
     assertNotANumber("-.0e1");
   }
 
-  private void assertNotANumber(String s) throws IOException {
-    JsonReader reader = new JsonReader(reader("[" + s + "]"));
-    reader.setLenient(true);
+  private void assertNotANumber(String s) {
+    GsonReader reader = new GsonReader(reader("[" + s + "]"), true);
     reader.beginArray();
     assertEquals(JsonToken.STRING, reader.peek());
     assertEquals(s, reader.nextString());
     reader.endArray();
   }
 
-  public void testPeekingUnquotedStringsPrefixedWithIntegers() throws IOException {
-    JsonReader reader = new JsonReader(reader("[12.34e5x]"));
-    reader.setLenient(true);
-    reader.beginArray();
+  public void testPeekingUnquotedStringsPrefixedWithIntegers() {
+    GsonReader reader = new GsonReader(reader("[12.34e5x]"), true);
+   reader.beginArray();
     assertEquals(STRING, reader.peek());
     try {
       reader.nextInt();
@@ -511,25 +492,25 @@ public final class JsonReaderTest extends TestCase {
     assertEquals("12.34e5x", reader.nextString());
   }
 
-  public void testPeekLongMinValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[-9223372036854775808]"));
-    reader.setLenient(true);
+  public void testPeekLongMinValue() {
+    GsonReader reader = new GsonReader(reader("[-9223372036854775808]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     assertEquals(-9223372036854775808L, reader.nextLong());
   }
 
-  public void testPeekLongMaxValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[9223372036854775807]"));
-    reader.setLenient(true);
+  public void testPeekLongMaxValue() {
+    GsonReader reader = new GsonReader(reader("[9223372036854775807]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     assertEquals(9223372036854775807L, reader.nextLong());
   }
 
-  public void testLongLargerThanMaxLongThatWrapsAround() throws IOException {
-    JsonReader reader = new JsonReader(reader("[22233720368547758070]"));
-    reader.setLenient(true);
+  public void testLongLargerThanMaxLongThatWrapsAround() {
+    GsonReader reader = new GsonReader(reader("[22233720368547758070]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     try {
@@ -539,9 +520,9 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testLongLargerThanMinLongThatWrapsAround() throws IOException {
-    JsonReader reader = new JsonReader(reader("[-22233720368547758070]"));
-    reader.setLenient(true);
+  public void testLongLargerThanMinLongThatWrapsAround() {
+    GsonReader reader = new GsonReader(reader("[-22233720368547758070]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     try {
@@ -555,9 +536,9 @@ public final class JsonReaderTest extends TestCase {
    * This test fails because there's no double for 9223372036854775808, and our
    * long parsing uses Double.parseDouble() for fractional values.
    */
-  public void disabled_testPeekLargerThanLongMaxValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[9223372036854775808]"));
-    reader.setLenient(true);
+  public void disabled_testPeekLargerThanLongMaxValue() {
+    GsonReader reader = new GsonReader(reader("[9223372036854775808]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     try {
@@ -571,9 +552,9 @@ public final class JsonReaderTest extends TestCase {
    * This test fails because there's no double for -9223372036854775809, and our
    * long parsing uses Double.parseDouble() for fractional values.
    */
-  public void disabled_testPeekLargerThanLongMinValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[-9223372036854775809]"));
-    reader.setLenient(true);
+  public void disabled_testPeekLargerThanLongMinValue() {
+    GsonReader reader = new GsonReader(reader("[-9223372036854775809]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     try {
@@ -588,17 +569,17 @@ public final class JsonReaderTest extends TestCase {
    * This test fails because there's no double for 9223372036854775806, and
    * our long parsing uses Double.parseDouble() for fractional values.
    */
-  public void disabled_testHighPrecisionLong() throws IOException {
+  public void disabled_testHighPrecisionLong() {
     String json = "[9223372036854775806.000]";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     assertEquals(9223372036854775806L, reader.nextLong());
     reader.endArray();
   }
 
-  public void testPeekMuchLargerThanLongMinValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[-92233720368547758080]"));
-    reader.setLenient(true);
+  public void testPeekMuchLargerThanLongMinValue() {
+    GsonReader reader = new GsonReader(reader("[-92233720368547758080]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(NUMBER, reader.peek());
     try {
@@ -609,16 +590,16 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(-92233720368547758080d, reader.nextDouble());
   }
 
-  public void testQuotedNumberWithEscape() throws IOException {
-    JsonReader reader = new JsonReader(reader("[\"12\u00334\"]"));
-    reader.setLenient(true);
+  public void testQuotedNumberWithEscape() {
+    GsonReader reader = new GsonReader(reader("[\"12\u00334\"]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(STRING, reader.peek());
     assertEquals(1234, reader.nextInt());
   }
 
-  public void testMixedCaseLiterals() throws IOException {
-    JsonReader reader = new JsonReader(reader("[True,TruE,False,FALSE,NULL,nulL]"));
+  public void testMixedCaseLiterals() {
+    GsonReader reader = new GsonReader(reader("[True,TruE,False,FALSE,NULL,nulL]"));
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     assertEquals(true, reader.nextBoolean());
@@ -630,32 +611,32 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testMissingValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\":}"));
+  public void testMissingValue() {
+    GsonReader reader = new GsonReader(reader("{\"a\":}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
     try {
       reader.nextString();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testPrematureEndOfInput() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\":true,"));
+  public void testPrematureEndOfInput() {
+    GsonReader reader = new GsonReader(reader("{\"a\":true,"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals(true, reader.nextBoolean());
     try {
       reader.nextName();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testPrematurelyClosed() throws IOException {
+  public void testPrematurelyClosed() {
     try {
-      JsonReader reader = new JsonReader(reader("{\"a\":[]}"));
+      GsonReader reader = new GsonReader(reader("{\"a\":[]}"));
       reader.beginObject();
       reader.close();
       reader.nextName();
@@ -664,7 +645,7 @@ public final class JsonReaderTest extends TestCase {
     }
 
     try {
-      JsonReader reader = new JsonReader(reader("{\"a\":[]}"));
+      GsonReader reader = new GsonReader(reader("{\"a\":[]}"));
       reader.close();
       reader.beginObject();
       fail();
@@ -672,7 +653,7 @@ public final class JsonReaderTest extends TestCase {
     }
 
     try {
-      JsonReader reader = new JsonReader(reader("{\"a\":true}"));
+      GsonReader reader = new GsonReader(reader("{\"a\":true}"));
       reader.beginObject();
       reader.nextName();
       reader.peek();
@@ -683,8 +664,8 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testNextFailuresDoNotAdvance() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\":true}"));
+  public void testNextFailuresDoNotAdvance() {
+    GsonReader reader = new GsonReader(reader("{\"a\":true}"));
     reader.beginObject();
     try {
       reader.nextString();
@@ -743,8 +724,8 @@ public final class JsonReaderTest extends TestCase {
     reader.close();
   }
 
-  public void testIntegerMismatchFailuresDoNotAdvance() throws IOException {
-    JsonReader reader = new JsonReader(reader("[1.5]"));
+  public void testIntegerMismatchFailuresDoNotAdvance() {
+    GsonReader reader = new GsonReader(reader("[1.5]"));
     reader.beginArray();
     try {
       reader.nextInt();
@@ -755,8 +736,8 @@ public final class JsonReaderTest extends TestCase {
     reader.endArray();
   }
 
-  public void testStringNullIsNotNull() throws IOException {
-    JsonReader reader = new JsonReader(reader("[\"null\"]"));
+  public void testStringNullIsNotNull() {
+    GsonReader reader = new GsonReader(reader("[\"null\"]"));
     reader.beginArray();
     try {
       reader.nextNull();
@@ -765,8 +746,8 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testNullLiteralIsNotAString() throws IOException {
-    JsonReader reader = new JsonReader(reader("[null]"));
+  public void testNullLiteralIsNotAString() {
+    GsonReader reader = new GsonReader(reader("[null]"));
     reader.beginArray();
     try {
       reader.nextString();
@@ -775,214 +756,140 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testStrictNameValueSeparator() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\"=true}"));
+  public void testStrictNameValueSeparator() {
+    GsonReader reader = new GsonReader(reader("{\"a\"=true}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
     try {
       reader.nextBoolean();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
 
-    reader = new JsonReader(reader("{\"a\"=>true}"));
+    reader = new GsonReader(reader("{\"a\"=>true}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
     try {
       reader.nextBoolean();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testLenientNameValueSeparator() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\"=true}"));
-    reader.setLenient(true);
+  public void testLenientNameValueSeparator() {
+    GsonReader reader = new GsonReader(reader("{\"a\"=true}"), true);
+    //reader.setLenient(true);
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals(true, reader.nextBoolean());
 
-    reader = new JsonReader(reader("{\"a\"=>true}"));
-    reader.setLenient(true);
+    reader = new GsonReader(reader("{\"a\"=>true}"), true);
+    //reader.setLenient(true);
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals(true, reader.nextBoolean());
   }
 
-  public void testStrictNameValueSeparatorWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\"=true}"));
+  public void testStrictNameValueSeparatorWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("{\"a\"=true}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
     try {
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
 
-    reader = new JsonReader(reader("{\"a\"=>true}"));
+    reader = new GsonReader(reader("{\"a\"=>true}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
     try {
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
   public void testCommentsInStringValue() throws Exception {
-    JsonReader reader = new JsonReader(reader("[\"// comment\"]"));
+    GsonReader reader = new GsonReader(reader("[\"// comment\"]"));
     reader.beginArray();
     assertEquals("// comment", reader.nextString());
     reader.endArray();
 
-    reader = new JsonReader(reader("{\"a\":\"#someComment\"}"));
+    reader = new GsonReader(reader("{\"a\":\"#someComment\"}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals("#someComment", reader.nextString());
     reader.endObject();
 
-    reader = new JsonReader(reader("{\"#//a\":\"#some //Comment\"}"));
+    reader = new GsonReader(reader("{\"#//a\":\"#some //Comment\"}"));
     reader.beginObject();
     assertEquals("#//a", reader.nextName());
     assertEquals("#some //Comment", reader.nextString());
     reader.endObject();
   }
 
-  public void testStrictComments() throws IOException {
-    JsonReader reader = new JsonReader(reader("[// comment \n true]"));
+  public void testStrictComments() {
+    GsonReader reader = new GsonReader(reader("[// comment \n true]"));
     reader.beginArray();
     try {
       reader.nextBoolean();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
 
-    reader = new JsonReader(reader("[# comment \n true]"));
+    reader = new GsonReader(reader("[# comment \n true]"));
     reader.beginArray();
     try {
       reader.nextBoolean();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
 
-    reader = new JsonReader(reader("[/* comment */ true]"));
+    reader = new GsonReader(reader("[/* comment */ true]"));
     reader.beginArray();
     try {
       reader.nextBoolean();
-      fail();
-    } catch (IOException expected) {
-    }
-  }
-
-  public void testLenientComments() throws IOException {
-    JsonReader reader = new JsonReader(reader("[// comment \n true]"));
-    reader.setLenient(true);
-    reader.beginArray();
-    assertEquals(true, reader.nextBoolean());
-
-    reader = new JsonReader(reader("[# comment \n true]"));
-    reader.setLenient(true);
-    reader.beginArray();
-    assertEquals(true, reader.nextBoolean());
-
-    reader = new JsonReader(reader("[/* comment */ true]"));
-    reader.setLenient(true);
-    reader.beginArray();
-    assertEquals(true, reader.nextBoolean());
-  }
-
-  public void testStrictCommentsWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[// comment \n true]"));
-    reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (IOException expected) {
-    }
-
-    reader = new JsonReader(reader("[# comment \n true]"));
-    reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (IOException expected) {
-    }
-
-    reader = new JsonReader(reader("[/* comment */ true]"));
-    reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (IOException expected) {
-    }
-  }
-
-  public void testStrictUnquotedNames() throws IOException {
-    JsonReader reader = new JsonReader(reader("{a:true}"));
-    reader.beginObject();
-    try {
-      reader.nextName();
-      fail();
-    } catch (IOException expected) {
-    }
-  }
-
-  public void testLenientUnquotedNames() throws IOException {
-    JsonReader reader = new JsonReader(reader("{a:true}"));
-    reader.setLenient(true);
-    reader.beginObject();
-    assertEquals("a", reader.nextName());
-  }
-
-  public void testStrictUnquotedNamesWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("{a:true}"));
-    reader.beginObject();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (IOException expected) {
-    }
-  }
-
-  public void testStrictSingleQuotedNames() throws IOException {
-    JsonReader reader = new JsonReader(reader("{'a':true}"));
-    reader.beginObject();
-    try {
-      reader.nextName();
-      fail();
-    } catch (IOException expected) {
-    }
-  }
-
-  public void testLenientSingleQuotedNames() throws IOException {
-    JsonReader reader = new JsonReader(reader("{'a':true}"));
-    reader.setLenient(true);
-    reader.beginObject();
-    assertEquals("a", reader.nextName());
-  }
-
-  public void testStrictSingleQuotedNamesWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("{'a':true}"));
-    reader.beginObject();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (IOException expected) {
-    }
-  }
-
-  public void testStrictUnquotedStrings() throws IOException {
-    JsonReader reader = new JsonReader(reader("[a]"));
-    reader.beginArray();
-    try {
-      reader.nextString();
       fail();
     } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testStrictUnquotedStringsWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[a]"));
+  public void testLenientComments() {
+    GsonReader reader = new GsonReader(reader("[// comment \n true]"), true);
+    //reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(true, reader.nextBoolean());
+
+    reader = new GsonReader(reader("[# comment \n true]"), true);
+    //reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(true, reader.nextBoolean());
+
+    reader = new GsonReader(reader("[/* comment */ true]"), true);
+    //reader.setLenient(true);
+    reader.beginArray();
+    assertEquals(true, reader.nextBoolean());
+  }
+
+  public void testStrictCommentsWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("[// comment \n true]"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+
+    reader = new GsonReader(reader("[# comment \n true]"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+
+    reader = new GsonReader(reader("[/* comment */ true]"));
     reader.beginArray();
     try {
       reader.skipValue();
@@ -991,220 +898,294 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testLenientUnquotedStrings() throws IOException {
-    JsonReader reader = new JsonReader(reader("[a]"));
-    reader.setLenient(true);
-    reader.beginArray();
-    assertEquals("a", reader.nextString());
+  public void testStrictUnquotedNames() {
+    GsonReader reader = new GsonReader(reader("{a:true}"));
+    reader.beginObject();
+    try {
+      reader.nextName();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
   }
 
-  public void testStrictSingleQuotedStrings() throws IOException {
-    JsonReader reader = new JsonReader(reader("['a']"));
+  public void testLenientUnquotedNames() {
+    GsonReader reader = new GsonReader(reader("{a:true}"), true);
+    //reader.setLenient(true);
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+  }
+
+  public void testStrictUnquotedNamesWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("{a:true}"));
+    reader.beginObject();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
+  public void testStrictSingleQuotedNames() {
+    GsonReader reader = new GsonReader(reader("{'a':true}"));
+    reader.beginObject();
+    try {
+      reader.nextName();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
+  public void testLenientSingleQuotedNames() {
+    GsonReader reader = new GsonReader(reader("{'a':true}"), true);
+    //reader.setLenient(true);
+    reader.beginObject();
+    assertEquals("a", reader.nextName());
+  }
+
+  public void testStrictSingleQuotedNamesWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("{'a':true}"));
+    reader.beginObject();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
+  public void testStrictUnquotedStrings() {
+    GsonReader reader = new GsonReader(reader("[a]"));
     reader.beginArray();
     try {
       reader.nextString();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testLenientSingleQuotedStrings() throws IOException {
-    JsonReader reader = new JsonReader(reader("['a']"));
-    reader.setLenient(true);
+  public void testStrictUnquotedStringsWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("[a]"));
+    reader.beginArray();
+    try {
+      reader.skipValue();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
+  public void testLenientUnquotedStrings() {
+    GsonReader reader = new GsonReader(reader("[a]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals("a", reader.nextString());
   }
 
-  public void testStrictSingleQuotedStringsWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("['a']"));
+  public void testStrictSingleQuotedStrings() {
+    GsonReader reader = new GsonReader(reader("['a']"));
+    reader.beginArray();
+    try {
+      reader.nextString();
+      fail();
+    } catch (MalformedJsonException expected) {
+    }
+  }
+
+  public void testLenientSingleQuotedStrings() {
+    GsonReader reader = new GsonReader(reader("['a']"), true);
+    //reader.setLenient(true);
+    reader.beginArray();
+    assertEquals("a", reader.nextString());
+  }
+
+  public void testStrictSingleQuotedStringsWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("['a']"));
     reader.beginArray();
     try {
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testStrictSemicolonDelimitedArray() throws IOException {
-    JsonReader reader = new JsonReader(reader("[true;true]"));
+  public void testStrictSemicolonDelimitedArray() {
+    GsonReader reader = new GsonReader(reader("[true;true]"));
     reader.beginArray();
     try {
       reader.nextBoolean();
       reader.nextBoolean();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testLenientSemicolonDelimitedArray() throws IOException {
-    JsonReader reader = new JsonReader(reader("[true;true]"));
-    reader.setLenient(true);
+  public void testLenientSemicolonDelimitedArray() {
+    GsonReader reader = new GsonReader(reader("[true;true]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     assertEquals(true, reader.nextBoolean());
   }
 
-  public void testStrictSemicolonDelimitedArrayWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[true;true]"));
+  public void testStrictSemicolonDelimitedArrayWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("[true;true]"));
     reader.beginArray();
     try {
       reader.skipValue();
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testStrictSemicolonDelimitedNameValuePair() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\":true;\"b\":true}"));
+  public void testStrictSemicolonDelimitedNameValuePair() {
+    GsonReader reader = new GsonReader(reader("{\"a\":true;\"b\":true}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
     try {
       reader.nextBoolean();
       reader.nextName();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testLenientSemicolonDelimitedNameValuePair() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\":true;\"b\":true}"));
-    reader.setLenient(true);
+  public void testLenientSemicolonDelimitedNameValuePair() {
+    GsonReader reader = new GsonReader(reader("{\"a\":true;\"b\":true}"), true);
+    //reader.setLenient(true);
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals(true, reader.nextBoolean());
     assertEquals("b", reader.nextName());
   }
 
-  public void testStrictSemicolonDelimitedNameValuePairWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\":true;\"b\":true}"));
+  public void testStrictSemicolonDelimitedNameValuePairWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("{\"a\":true;\"b\":true}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
     try {
       reader.skipValue();
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testStrictUnnecessaryArraySeparators() throws IOException {
-    JsonReader reader = new JsonReader(reader("[true,,true]"));
+  public void testStrictUnnecessaryArraySeparators() {
+    GsonReader reader = new GsonReader(reader("[true,,true]"));
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     try {
       reader.nextNull();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
 
-    reader = new JsonReader(reader("[,true]"));
+    reader = new GsonReader(reader("[,true]"));
     reader.beginArray();
     try {
       reader.nextNull();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
 
-    reader = new JsonReader(reader("[true,]"));
+    reader = new GsonReader(reader("[true,]"));
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     try {
       reader.nextNull();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
 
-    reader = new JsonReader(reader("[,]"));
+    reader = new GsonReader(reader("[,]"));
     reader.beginArray();
     try {
       reader.nextNull();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testLenientUnnecessaryArraySeparators() throws IOException {
-    JsonReader reader = new JsonReader(reader("[true,,true]"));
-    reader.setLenient(true);
+  public void testLenientUnnecessaryArraySeparators() {
+    GsonReader reader = new GsonReader(reader("[true,,true]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     reader.nextNull();
     assertEquals(true, reader.nextBoolean());
     reader.endArray();
 
-    reader = new JsonReader(reader("[,true]"));
-    reader.setLenient(true);
+    reader = new GsonReader(reader("[,true]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     reader.nextNull();
     assertEquals(true, reader.nextBoolean());
     reader.endArray();
 
-    reader = new JsonReader(reader("[true,]"));
-    reader.setLenient(true);
+    reader = new GsonReader(reader("[true,]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     reader.nextNull();
     reader.endArray();
 
-    reader = new JsonReader(reader("[,]"));
-    reader.setLenient(true);
+    reader = new GsonReader(reader("[,]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     reader.nextNull();
     reader.nextNull();
     reader.endArray();
   }
 
-  public void testStrictUnnecessaryArraySeparatorsWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[true,,true]"));
+  public void testStrictUnnecessaryArraySeparatorsWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("[true,,true]"));
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     try {
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
 
-    reader = new JsonReader(reader("[,true]"));
+    reader = new GsonReader(reader("[,true]"));
     reader.beginArray();
     try {
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
 
-    reader = new JsonReader(reader("[true,]"));
+    reader = new GsonReader(reader("[true,]"));
     reader.beginArray();
     assertEquals(true, reader.nextBoolean());
     try {
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
 
-    reader = new JsonReader(reader("[,]"));
+    reader = new GsonReader(reader("[,]"));
     reader.beginArray();
     try {
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testStrictMultipleTopLevelValues() throws IOException {
-    JsonReader reader = new JsonReader(reader("[] []"));
+  public void testStrictMultipleTopLevelValues() {
+    GsonReader reader = new GsonReader(reader("[] []"));
     reader.beginArray();
     reader.endArray();
     try {
       reader.peek();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testLenientMultipleTopLevelValues() throws IOException {
-    JsonReader reader = new JsonReader(reader("[] true {}"));
-    reader.setLenient(true);
+  public void testLenientMultipleTopLevelValues() {
+    GsonReader reader = new GsonReader(reader("[] true {}"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     reader.endArray();
     assertEquals(true, reader.nextBoolean());
@@ -1213,183 +1194,183 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testStrictMultipleTopLevelValuesWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("[] []"));
+  public void testStrictMultipleTopLevelValuesWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("[] []"));
     reader.beginArray();
     reader.endArray();
     try {
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testTopLevelValueTypes() throws IOException {
-    JsonReader reader1 = new JsonReader(reader("true"));
+  public void testTopLevelValueTypes() {
+    GsonReader reader1 = new GsonReader(reader("true"));
     assertTrue(reader1.nextBoolean());
     assertEquals(JsonToken.END_DOCUMENT, reader1.peek());
 
-    JsonReader reader2 = new JsonReader(reader("false"));
+    GsonReader reader2 = new GsonReader(reader("false"));
     assertFalse(reader2.nextBoolean());
     assertEquals(JsonToken.END_DOCUMENT, reader2.peek());
 
-    JsonReader reader3 = new JsonReader(reader("null"));
+    GsonReader reader3 = new GsonReader(reader("null"));
     assertEquals(JsonToken.NULL, reader3.peek());
     reader3.nextNull();
     assertEquals(JsonToken.END_DOCUMENT, reader3.peek());
 
-    JsonReader reader4 = new JsonReader(reader("123"));
+    GsonReader reader4 = new GsonReader(reader("123"));
     assertEquals(123, reader4.nextInt());
     assertEquals(JsonToken.END_DOCUMENT, reader4.peek());
 
-    JsonReader reader5 = new JsonReader(reader("123.4"));
+    GsonReader reader5 = new GsonReader(reader("123.4"));
     assertEquals(123.4, reader5.nextDouble());
     assertEquals(JsonToken.END_DOCUMENT, reader5.peek());
 
-    JsonReader reader6 = new JsonReader(reader("\"a\""));
+    GsonReader reader6 = new GsonReader(reader("\"a\""));
     assertEquals("a", reader6.nextString());
     assertEquals(JsonToken.END_DOCUMENT, reader6.peek());
   }
 
-  public void testTopLevelValueTypeWithSkipValue() throws IOException {
-    JsonReader reader = new JsonReader(reader("true"));
+  public void testTopLevelValueTypeWithSkipValue() {
+    GsonReader reader = new GsonReader(reader("true"));
     reader.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
   public void testStrictNonExecutePrefix() {
-    JsonReader reader = new JsonReader(reader(")]}'\n []"));
+    GsonReader reader = new GsonReader(reader(")]}'\n []"));
     try {
       reader.beginArray();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
   public void testStrictNonExecutePrefixWithSkipValue() {
-    JsonReader reader = new JsonReader(reader(")]}'\n []"));
+    GsonReader reader = new GsonReader(reader(")]}'\n []"));
     try {
       reader.skipValue();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testLenientNonExecutePrefix() throws IOException {
-    JsonReader reader = new JsonReader(reader(")]}'\n []"));
-    reader.setLenient(true);
+  public void testLenientNonExecutePrefix() {
+    GsonReader reader = new GsonReader(reader(")]}'\n []"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testLenientNonExecutePrefixWithLeadingWhitespace() throws IOException {
-    JsonReader reader = new JsonReader(reader("\r\n \t)]}'\n []"));
-    reader.setLenient(true);
+  public void testLenientNonExecutePrefixWithLeadingWhitespace() {
+    GsonReader reader = new GsonReader(reader("\r\n \t)]}'\n []"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     reader.endArray();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
   public void testLenientPartialNonExecutePrefix() {
-    JsonReader reader = new JsonReader(reader(")]}' []"));
-    reader.setLenient(true);
+    GsonReader reader = new GsonReader(reader(")]}' []"), true);
+    //reader.setLenient(true);
     try {
       assertEquals(")", reader.nextString());
       reader.nextString();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testBomIgnoredAsFirstCharacterOfDocument() throws IOException {
-    JsonReader reader = new JsonReader(reader("\ufeff[]"));
+  public void testBomIgnoredAsFirstCharacterOfDocument() {
+    GsonReader reader = new GsonReader(reader("\ufeff[]"));
     reader.beginArray();
     reader.endArray();
   }
 
-  public void testBomForbiddenAsOtherCharacterInDocument() throws IOException {
-    JsonReader reader = new JsonReader(reader("[\ufeff]"));
+  public void testBomForbiddenAsOtherCharacterInDocument() {
+    GsonReader reader = new GsonReader(reader("[\ufeff]"));
     reader.beginArray();
     try {
       reader.endArray();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testFailWithPosition() throws IOException {
+  public void testFailWithPosition() {
     testFailWithPosition("Expected value at line 6 column 5 path $[1]",
         "[\n\n\n\n\n\"a\",}]");
   }
 
-  public void testFailWithPositionGreaterThanBufferSize() throws IOException {
+  public void testFailWithPositionGreaterThanBufferSize() {
     String spaces = repeat(' ', 8192);
     testFailWithPosition("Expected value at line 6 column 5 path $[1]",
         "[\n\n" + spaces + "\n\n\n\"a\",}]");
   }
 
-  public void testFailWithPositionOverSlashSlashEndOfLineComment() throws IOException {
+  public void testFailWithPositionOverSlashSlashEndOfLineComment() {
     testFailWithPosition("Expected value at line 5 column 6 path $[1]",
         "\n// foo\n\n//bar\r\n[\"a\",}");
   }
 
-  public void testFailWithPositionOverHashEndOfLineComment() throws IOException {
+  public void testFailWithPositionOverHashEndOfLineComment() {
     testFailWithPosition("Expected value at line 5 column 6 path $[1]",
         "\n# foo\n\n#bar\r\n[\"a\",}");
   }
 
-  public void testFailWithPositionOverCStyleComment() throws IOException {
+  public void testFailWithPositionOverCStyleComment() {
     testFailWithPosition("Expected value at line 6 column 12 path $[1]",
         "\n\n/* foo\n*\n*\r\nbar */[\"a\",}");
   }
 
-  public void testFailWithPositionOverQuotedString() throws IOException {
+  public void testFailWithPositionOverQuotedString() {
     testFailWithPosition("Expected value at line 5 column 3 path $[1]",
         "[\"foo\nbar\r\nbaz\n\",\n  }");
   }
 
-  public void testFailWithPositionOverUnquotedString() throws IOException {
+  public void testFailWithPositionOverUnquotedString() {
     testFailWithPosition("Expected value at line 5 column 2 path $[1]", "[\n\nabcd\n\n,}");
   }
 
-  public void testFailWithEscapedNewlineCharacter() throws IOException {
+  public void testFailWithEscapedNewlineCharacter() {
     testFailWithPosition("Expected value at line 5 column 3 path $[1]", "[\n\n\"\\\n\n\",}");
   }
 
-  public void testFailWithPositionIsOffsetByBom() throws IOException {
+  public void testFailWithPositionIsOffsetByBom() {
     testFailWithPosition("Expected value at line 1 column 6 path $[1]",
         "\ufeff[\"a\",}]");
   }
 
-  private void testFailWithPosition(String message, String json) throws IOException {
+  private void testFailWithPosition(String message, String json) {
     // Validate that it works reading the string normally.
-    JsonReader reader1 = new JsonReader(reader(json));
-    reader1.setLenient(true);
+    GsonReader reader1 = new GsonReader(reader(json), true);
+    //reader1.setLenient(true);
     reader1.beginArray();
     reader1.nextString();
     try {
       reader1.peek();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
       assertEquals(message, expected.getMessage());
     }
 
     // Also validate that it works when skipping.
-    JsonReader reader2 = new JsonReader(reader(json));
-    reader2.setLenient(true);
+    GsonReader reader2 = new GsonReader(reader(json), true);
+    //reader2.setLenient(true);
     reader2.beginArray();
     reader2.skipValue();
     try {
       reader2.peek();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
       assertEquals(message, expected.getMessage());
     }
   }
 
-  public void testFailWithPositionDeepPath() throws IOException {
-    JsonReader reader = new JsonReader(reader("[1,{\"a\":[2,3,}"));
+  public void testFailWithPositionDeepPath() {
+    GsonReader reader = new GsonReader(reader("[1,{\"a\":[2,3,}"));
     reader.beginArray();
     reader.nextInt();
     reader.beginObject();
@@ -1400,13 +1381,13 @@ public final class JsonReaderTest extends TestCase {
     try {
       reader.peek();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
       assertEquals("Expected value at line 1 column 14 path $[1].a[2]", expected.getMessage());
     }
   }
 
-  public void testStrictVeryLongNumber() throws IOException {
-    JsonReader reader = new JsonReader(reader("[0." + repeat('9', 8192) + "]"));
+  public void testStrictVeryLongNumber() {
+    GsonReader reader = new GsonReader(reader("[0." + repeat('9', 8192) + "]"));
     reader.beginArray();
     try {
       assertEquals(1d, reader.nextDouble());
@@ -1415,9 +1396,9 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testLenientVeryLongNumber() throws IOException {
-    JsonReader reader = new JsonReader(reader("[0." + repeat('9', 8192) + "]"));
-    reader.setLenient(true);
+  public void testLenientVeryLongNumber() {
+    GsonReader reader = new GsonReader(reader("[0." + repeat('9', 8192) + "]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(JsonToken.STRING, reader.peek());
     assertEquals(1d, reader.nextDouble());
@@ -1425,18 +1406,18 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testVeryLongUnquotedLiteral() throws IOException {
+  public void testVeryLongUnquotedLiteral() {
     String literal = "a" + repeat('b', 8192) + "c";
-    JsonReader reader = new JsonReader(reader("[" + literal + "]"));
-    reader.setLenient(true);
+    GsonReader reader = new GsonReader(reader("[" + literal + "]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(literal, reader.nextString());
     reader.endArray();
   }
 
-  public void testDeeplyNestedArrays() throws IOException {
+  public void testDeeplyNestedArrays() {
     // this is nested 40 levels deep; Gson is tuned for nesting is 30 levels deep or fewer
-    JsonReader reader = new JsonReader(reader(
+    GsonReader reader = new GsonReader(reader(
         "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"));
     for (int i = 0; i < 40; i++) {
       reader.beginArray();
@@ -1449,7 +1430,7 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testDeeplyNestedObjects() throws IOException {
+  public void testDeeplyNestedObjects() {
     // Build a JSON document structured like {"a":{"a":{"a":{"a":true}}}}, but 40 levels deep
     String array = "{\"a\":%s}";
     String json = "true";
@@ -1457,7 +1438,7 @@ public final class JsonReaderTest extends TestCase {
       json = String.format(array, json);
     }
 
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     for (int i = 0; i < 40; i++) {
       reader.beginObject();
       assertEquals("a", reader.nextName());
@@ -1472,9 +1453,9 @@ public final class JsonReaderTest extends TestCase {
   }
 
   // http://code.google.com/p/google-gson/issues/detail?id=409
-  public void testStringEndingInSlash() throws IOException {
-    JsonReader reader = new JsonReader(reader("/"));
-    reader.setLenient(true);
+  public void testStringEndingInSlash() {
+    GsonReader reader = new GsonReader(reader("/"), true);
+    //reader.setLenient(true);
     try {
       reader.peek();
       fail();
@@ -1482,9 +1463,9 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testDocumentWithCommentEndingInSlash() throws IOException {
-    JsonReader reader = new JsonReader(reader("/* foo *//"));
-    reader.setLenient(true);
+  public void testDocumentWithCommentEndingInSlash() {
+    GsonReader reader = new GsonReader(reader("/* foo *//"), true);
+    //reader.setLenient(true);
     try {
       reader.peek();
       fail();
@@ -1492,9 +1473,9 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testStringWithLeadingSlash() throws IOException {
-    JsonReader reader = new JsonReader(reader("/x"));
-    reader.setLenient(true);
+  public void testStringWithLeadingSlash() {
+    GsonReader reader = new GsonReader(reader("/x"), true);
+    //reader.setLenient(true);
     try {
       reader.peek();
       fail();
@@ -1502,9 +1483,9 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testUnterminatedObject() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\":\"android\"x"));
-    reader.setLenient(true);
+  public void testUnterminatedObject() {
+    GsonReader reader = new GsonReader(reader("{\"a\":\"android\"x"), true);
+    //reader.setLenient(true);
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals("android", reader.nextString());
@@ -1515,98 +1496,98 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  public void testVeryLongQuotedString() throws IOException {
+  public void testVeryLongQuotedString() {
     char[] stringChars = new char[1024 * 16];
     Arrays.fill(stringChars, 'x');
     String string = new String(stringChars);
     String json = "[\"" + string + "\"]";
-    JsonReader reader = new JsonReader(reader(json));
+    GsonReader reader = new GsonReader(reader(json));
     reader.beginArray();
     assertEquals(string, reader.nextString());
     reader.endArray();
   }
 
-  public void testVeryLongUnquotedString() throws IOException {
+  public void testVeryLongUnquotedString() {
     char[] stringChars = new char[1024 * 16];
     Arrays.fill(stringChars, 'x');
     String string = new String(stringChars);
     String json = "[" + string + "]";
-    JsonReader reader = new JsonReader(reader(json));
-    reader.setLenient(true);
+    GsonReader reader = new GsonReader(reader(json), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(string, reader.nextString());
     reader.endArray();
   }
 
-  public void testVeryLongUnterminatedString() throws IOException {
+  public void testVeryLongUnterminatedString() {
     char[] stringChars = new char[1024 * 16];
     Arrays.fill(stringChars, 'x');
     String string = new String(stringChars);
     String json = "[" + string;
-    JsonReader reader = new JsonReader(reader(json));
-    reader.setLenient(true);
+    GsonReader reader = new GsonReader(reader(json), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(string, reader.nextString());
     try {
       reader.peek();
       fail();
-    } catch (EOFException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testSkipVeryLongUnquotedString() throws IOException {
-    JsonReader reader = new JsonReader(reader("[" + repeat('x', 8192) + "]"));
-    reader.setLenient(true);
+  public void testSkipVeryLongUnquotedString() {
+    GsonReader reader = new GsonReader(reader("[" + repeat('x', 8192) + "]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     reader.skipValue();
     reader.endArray();
   }
 
-  public void testSkipTopLevelUnquotedString() throws IOException {
-    JsonReader reader = new JsonReader(reader(repeat('x', 8192)));
-    reader.setLenient(true);
+  public void testSkipTopLevelUnquotedString() {
+    GsonReader reader = new GsonReader(reader(repeat('x', 8192)), true);
+    //reader.setLenient(true);
     reader.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testSkipVeryLongQuotedString() throws IOException {
-    JsonReader reader = new JsonReader(reader("[\"" + repeat('x', 8192) + "\"]"));
+  public void testSkipVeryLongQuotedString() {
+    GsonReader reader = new GsonReader(reader("[\"" + repeat('x', 8192) + "\"]"));
     reader.beginArray();
     reader.skipValue();
     reader.endArray();
   }
 
-  public void testSkipTopLevelQuotedString() throws IOException {
-    JsonReader reader = new JsonReader(reader("\"" + repeat('x', 8192) + "\""));
-    reader.setLenient(true);
+  public void testSkipTopLevelQuotedString() {
+    GsonReader reader = new GsonReader(reader("\"" + repeat('x', 8192) + "\""), true);
+    //reader.setLenient(true);
     reader.skipValue();
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testStringAsNumberWithTruncatedExponent() throws IOException {
-    JsonReader reader = new JsonReader(reader("[123e]"));
-    reader.setLenient(true);
+  public void testStringAsNumberWithTruncatedExponent() {
+    GsonReader reader = new GsonReader(reader("[123e]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(STRING, reader.peek());
   }
 
-  public void testStringAsNumberWithDigitAndNonDigitExponent() throws IOException {
-    JsonReader reader = new JsonReader(reader("[123e4b]"));
-    reader.setLenient(true);
+  public void testStringAsNumberWithDigitAndNonDigitExponent() {
+    GsonReader reader = new GsonReader(reader("[123e4b]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(STRING, reader.peek());
   }
 
-  public void testStringAsNumberWithNonDigitExponent() throws IOException {
-    JsonReader reader = new JsonReader(reader("[123eb]"));
-    reader.setLenient(true);
+  public void testStringAsNumberWithNonDigitExponent() {
+    GsonReader reader = new GsonReader(reader("[123eb]"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(STRING, reader.peek());
   }
 
-  public void testEmptyStringName() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"\":true}"));
-    reader.setLenient(true);
+  public void testEmptyStringName() {
+    GsonReader reader = new GsonReader(reader("{\"\":true}"), true);
+    //reader.setLenient(true);
     assertEquals(BEGIN_OBJECT, reader.peek());
     reader.beginObject();
     assertEquals(NAME, reader.peek());
@@ -1618,28 +1599,28 @@ public final class JsonReaderTest extends TestCase {
     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
   }
 
-  public void testStrictExtraCommasInMaps() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\":\"b\",}"));
+  public void testStrictExtraCommasInMaps() {
+    GsonReader reader = new GsonReader(reader("{\"a\":\"b\",}"));
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals("b", reader.nextString());
     try {
       reader.peek();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
-  public void testLenientExtraCommasInMaps() throws IOException {
-    JsonReader reader = new JsonReader(reader("{\"a\":\"b\",}"));
-    reader.setLenient(true);
+  public void testLenientExtraCommasInMaps() {
+    GsonReader reader = new GsonReader(reader("{\"a\":\"b\",}"), true);
+    //reader.setLenient(true);
     reader.beginObject();
     assertEquals("a", reader.nextName());
     assertEquals("b", reader.nextString());
     try {
       reader.peek();
       fail();
-    } catch (IOException expected) {
+    } catch (MalformedJsonException expected) {
     }
   }
 
@@ -1649,55 +1630,55 @@ public final class JsonReaderTest extends TestCase {
     return new String(array);
   }
 
-  public void testMalformedDocuments() throws IOException {
-    assertDocument("{]", BEGIN_OBJECT, IOException.class);
-    assertDocument("{,", BEGIN_OBJECT, IOException.class);
-    assertDocument("{{", BEGIN_OBJECT, IOException.class);
-    assertDocument("{[", BEGIN_OBJECT, IOException.class);
-    assertDocument("{:", BEGIN_OBJECT, IOException.class);
-    assertDocument("{\"name\",", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{\"name\",", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{\"name\":}", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{\"name\"::", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{\"name\":,", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{\"name\"=}", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{\"name\"=>}", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{\"name\"=>\"string\":", BEGIN_OBJECT, NAME, STRING, IOException.class);
-    assertDocument("{\"name\"=>\"string\"=", BEGIN_OBJECT, NAME, STRING, IOException.class);
-    assertDocument("{\"name\"=>\"string\"=>", BEGIN_OBJECT, NAME, STRING, IOException.class);
-    assertDocument("{\"name\"=>\"string\",", BEGIN_OBJECT, NAME, STRING, IOException.class);
+  public void testMalformedDocuments() {
+    assertDocument("{]", BEGIN_OBJECT, MalformedJsonException.class);
+    assertDocument("{,", BEGIN_OBJECT, MalformedJsonException.class);
+    assertDocument("{{", BEGIN_OBJECT, MalformedJsonException.class);
+    assertDocument("{[", BEGIN_OBJECT, MalformedJsonException.class);
+    assertDocument("{:", BEGIN_OBJECT, MalformedJsonException.class);
+    assertDocument("{\"name\",", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{\"name\",", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{\"name\":}", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{\"name\"::", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{\"name\":,", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{\"name\"=}", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{\"name\"=>}", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{\"name\"=>\"string\":", BEGIN_OBJECT, NAME, STRING, MalformedJsonException.class);
+    assertDocument("{\"name\"=>\"string\"=", BEGIN_OBJECT, NAME, STRING, MalformedJsonException.class);
+    assertDocument("{\"name\"=>\"string\"=>", BEGIN_OBJECT, NAME, STRING, MalformedJsonException.class);
+    assertDocument("{\"name\"=>\"string\",", BEGIN_OBJECT, NAME, STRING, MalformedJsonException.class);
     assertDocument("{\"name\"=>\"string\",\"name\"", BEGIN_OBJECT, NAME, STRING, NAME);
-    assertDocument("[}", BEGIN_ARRAY, IOException.class);
+    assertDocument("[}", BEGIN_ARRAY, MalformedJsonException.class);
     assertDocument("[,]", BEGIN_ARRAY, NULL, NULL, END_ARRAY);
-    assertDocument("{", BEGIN_OBJECT, IOException.class);
-    assertDocument("{\"name\"", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{\"name\",", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{'name'", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{'name',", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("{name", BEGIN_OBJECT, NAME, IOException.class);
-    assertDocument("[", BEGIN_ARRAY, IOException.class);
-    assertDocument("[string", BEGIN_ARRAY, STRING, IOException.class);
-    assertDocument("[\"string\"", BEGIN_ARRAY, STRING, IOException.class);
-    assertDocument("['string'", BEGIN_ARRAY, STRING, IOException.class);
-    assertDocument("[123", BEGIN_ARRAY, NUMBER, IOException.class);
-    assertDocument("[123,", BEGIN_ARRAY, NUMBER, IOException.class);
-    assertDocument("{\"name\":123", BEGIN_OBJECT, NAME, NUMBER, IOException.class);
-    assertDocument("{\"name\":123,", BEGIN_OBJECT, NAME, NUMBER, IOException.class);
-    assertDocument("{\"name\":\"string\"", BEGIN_OBJECT, NAME, STRING, IOException.class);
-    assertDocument("{\"name\":\"string\",", BEGIN_OBJECT, NAME, STRING, IOException.class);
-    assertDocument("{\"name\":'string'", BEGIN_OBJECT, NAME, STRING, IOException.class);
-    assertDocument("{\"name\":'string',", BEGIN_OBJECT, NAME, STRING, IOException.class);
-    assertDocument("{\"name\":false", BEGIN_OBJECT, NAME, BOOLEAN, IOException.class);
-    assertDocument("{\"name\":false,,", BEGIN_OBJECT, NAME, BOOLEAN, IOException.class);
+    assertDocument("{", BEGIN_OBJECT, MalformedJsonException.class);
+    assertDocument("{\"name\"", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{\"name\",", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{'name'", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{'name',", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("{name", BEGIN_OBJECT, NAME, MalformedJsonException.class);
+    assertDocument("[", BEGIN_ARRAY, MalformedJsonException.class);
+    assertDocument("[string", BEGIN_ARRAY, STRING, MalformedJsonException.class);
+    assertDocument("[\"string\"", BEGIN_ARRAY, STRING, MalformedJsonException.class);
+    assertDocument("['string'", BEGIN_ARRAY, STRING, MalformedJsonException.class);
+    assertDocument("[123", BEGIN_ARRAY, NUMBER, MalformedJsonException.class);
+    assertDocument("[123,", BEGIN_ARRAY, NUMBER, MalformedJsonException.class);
+    assertDocument("{\"name\":123", BEGIN_OBJECT, NAME, NUMBER, MalformedJsonException.class);
+    assertDocument("{\"name\":123,", BEGIN_OBJECT, NAME, NUMBER, MalformedJsonException.class);
+    assertDocument("{\"name\":\"string\"", BEGIN_OBJECT, NAME, STRING, MalformedJsonException.class);
+    assertDocument("{\"name\":\"string\",", BEGIN_OBJECT, NAME, STRING, MalformedJsonException.class);
+    assertDocument("{\"name\":'string'", BEGIN_OBJECT, NAME, STRING, MalformedJsonException.class);
+    assertDocument("{\"name\":'string',", BEGIN_OBJECT, NAME, STRING, MalformedJsonException.class);
+    assertDocument("{\"name\":false", BEGIN_OBJECT, NAME, BOOLEAN, MalformedJsonException.class);
+    assertDocument("{\"name\":false,,", BEGIN_OBJECT, NAME, BOOLEAN, MalformedJsonException.class);
   }
 
   /**
    * This test behave slightly differently in Gson 2.2 and earlier. It fails
    * during peek rather than during nextString().
    */
-  public void testUnterminatedStringFailure() throws IOException {
-    JsonReader reader = new JsonReader(reader("[\"string"));
-    reader.setLenient(true);
+  public void testUnterminatedStringFailure() {
+    GsonReader reader = new GsonReader(reader("[\"string"), true);
+    //reader.setLenient(true);
     reader.beginArray();
     assertEquals(JsonToken.STRING, reader.peek());
     try {
@@ -1707,9 +1688,9 @@ public final class JsonReaderTest extends TestCase {
     }
   }
 
-  private void assertDocument(String document, Object... expectations) throws IOException {
-    JsonReader reader = new JsonReader(reader(document));
-    reader.setLenient(true);
+  private void assertDocument(String document, Object... expectations) {
+    GsonReader reader = new GsonReader(reader(document), true);
+    //reader.setLenient(true);
     for (Object expectation : expectations) {
       if (expectation == BEGIN_OBJECT) {
         reader.beginObject();
@@ -1729,11 +1710,11 @@ public final class JsonReaderTest extends TestCase {
         assertEquals(123, reader.nextInt());
       } else if (expectation == NULL) {
         reader.nextNull();
-      } else if (expectation == IOException.class) {
+      } else if (expectation == MalformedJsonException.class) {
         try {
           reader.peek();
           fail();
-        } catch (IOException expected) {
+        } catch (MalformedJsonException expected) {
         }
       } else {
         throw new AssertionError();
@@ -1748,7 +1729,7 @@ public final class JsonReaderTest extends TestCase {
     /* if (true) */ return new StringReader(s);
     /* return new Reader() {
       int position = 0;
-      @Override public int read(char[] buffer, int offset, int count) throws IOException {
+      @Override public int read(char[] buffer, int offset, int count) {
         if (position == s.length()) {
           return -1;
         } else if (count > 0) {
@@ -1758,7 +1739,7 @@ public final class JsonReaderTest extends TestCase {
           throw new IllegalArgumentException();
         }
       }
-      @Override public void close() throws IOException {
+      @Override public void close() {
       }
     }; */
   }

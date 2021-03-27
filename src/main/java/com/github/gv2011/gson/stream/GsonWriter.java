@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Google Inc.
+ * Copyright (C) 2016-2021 Vinz (https://github.com/gv2011)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +24,15 @@ import static com.github.gv2011.gson.stream.JsonScope.EMPTY_OBJECT;
 import static com.github.gv2011.gson.stream.JsonScope.NONEMPTY_ARRAY;
 import static com.github.gv2011.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
 import static com.github.gv2011.gson.stream.JsonScope.NONEMPTY_OBJECT;
+import static com.github.gv2011.util.ex.Exceptions.call;
 
-import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
+
+import com.github.gv2011.util.AutoCloseableNt;
+import com.github.gv2011.util.json.JsonWriter;
+import com.github.gv2011.util.num.Decimal;
 
 /**
  * Writes a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -127,7 +132,9 @@ import java.io.Writer;
  * @author Jesse Wilson
  * @since 1.6
  */
-public class JsonWriter implements Closeable, Flushable {
+public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
+  
+  public static final String DEFAULT_INDENT = "  ";
 
   /*
    * From RFC 7159, "All Unicode characters may be placed within the
@@ -174,42 +181,39 @@ public class JsonWriter implements Closeable, Flushable {
    * A string containing a full set of spaces for a single level of
    * indentation, or null for no pretty printing.
    */
-  private String indent;
+  private final String indent;
 
   /**
    * The name/value separator; either ":" or ": ".
    */
-  private String separator = ":";
+  private final String separator;
 
-  private boolean lenient;
+  private final boolean lenient;
 
-  private boolean htmlSafe;
+  private final boolean htmlSafe;
 
   private String deferredName;
 
-  private boolean serializeNulls = true;
+  private boolean serializeNulls = false;
 
+  
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
    * For best performance, ensure {@link Writer} is buffered; wrapping in
    * {@link java.io.BufferedWriter BufferedWriter} if necessary.
    */
-  public JsonWriter(Writer out) {
-    if (out == null) {
-      throw new NullPointerException("out == null");
-    }
-    this.out = out;
+  public GsonWriter(Writer out) {
+    this(out, DEFAULT_INDENT, false, false, false);
   }
 
-  /**
-   * Sets the indentation string to be repeated for each level of indentation
-   * in the encoded document. If {@code indent.isEmpty()} the encoded document
-   * will be compact. Otherwise the encoded document will be more
-   * human-readable.
-   *
-   * @param indent a string containing only whitespace.
-   */
-  public final void setIndent(String indent) {
+  public GsonWriter(Writer out, String indent) {
+    this(out, indent, false, false, false);
+  }
+
+  
+  GsonWriter(Writer out, String indent, boolean lenient, boolean htmlSafe, boolean serializeNulls) {
+    assert out != null;
+    this.out = out;
     if (indent.length() == 0) {
       this.indent = null;
       this.separator = ":";
@@ -217,22 +221,9 @@ public class JsonWriter implements Closeable, Flushable {
       this.indent = indent;
       this.separator = ": ";
     }
-  }
-
-  /**
-   * Configure this writer to relax its syntax rules. By default, this writer
-   * only emits well-formed JSON as specified by <a
-   * href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>. Setting the writer
-   * to lenient permits the following:
-   * <ul>
-   *   <li>Top-level values of any type. With strict writing, the top-level
-   *       value must be an object or an array.
-   *   <li>Numbers may be {@link Double#isNaN() NaNs} or {@link
-   *       Double#isInfinite() infinities}.
-   * </ul>
-   */
-  public final void setLenient(boolean lenient) {
     this.lenient = lenient;
+    this.htmlSafe = htmlSafe;
+    this.serializeNulls = serializeNulls;
   }
 
   /**
@@ -243,30 +234,11 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Configure this writer to emit JSON that's safe for direct inclusion in HTML
-   * and XML documents. This escapes the HTML characters {@code <}, {@code >},
-   * {@code &} and {@code =} before writing them to the stream. Without this
-   * setting, your XML/HTML encoder should replace these characters with the
-   * corresponding escape sequences.
-   */
-  public final void setHtmlSafe(boolean htmlSafe) {
-    this.htmlSafe = htmlSafe;
-  }
-
-  /**
    * Returns true if this writer writes JSON that's safe for inclusion in HTML
    * and XML documents.
    */
   public final boolean isHtmlSafe() {
     return htmlSafe;
-  }
-
-  /**
-   * Sets whether object members are serialized when their value is null.
-   * This has no impact on array elements. The default is true.
-   */
-  public final void setSerializeNulls(boolean serializeNulls) {
-    this.serializeNulls = serializeNulls;
   }
 
   /**
@@ -283,9 +255,10 @@ public class JsonWriter implements Closeable, Flushable {
    *
    * @return this writer.
    */
-  public JsonWriter beginArray() throws IOException {
+  @Override
+  public void beginArray() {
     writeDeferredName();
-    return open(EMPTY_ARRAY, "[");
+    open(EMPTY_ARRAY, "[");
   }
 
   /**
@@ -293,8 +266,9 @@ public class JsonWriter implements Closeable, Flushable {
    *
    * @return this writer.
    */
-  public JsonWriter endArray() throws IOException {
-    return close(EMPTY_ARRAY, NONEMPTY_ARRAY, "]");
+  @Override
+  public void endArray(){
+    close(EMPTY_ARRAY, NONEMPTY_ARRAY, "]");
   }
 
   /**
@@ -303,9 +277,10 @@ public class JsonWriter implements Closeable, Flushable {
    *
    * @return this writer.
    */
-  public JsonWriter beginObject() throws IOException {
+  @Override
+  public void beginObject(){
     writeDeferredName();
-    return open(EMPTY_OBJECT, "{");
+    open(EMPTY_OBJECT, "{");
   }
 
   /**
@@ -313,27 +288,26 @@ public class JsonWriter implements Closeable, Flushable {
    *
    * @return this writer.
    */
-  public JsonWriter endObject() throws IOException {
-    return close(EMPTY_OBJECT, NONEMPTY_OBJECT, "}");
+  @Override
+  public void endObject(){
+    close(EMPTY_OBJECT, NONEMPTY_OBJECT, "}");
   }
 
   /**
    * Enters a new scope by appending any necessary whitespace and the given
    * bracket.
    */
-  private JsonWriter open(int empty, String openBracket) throws IOException {
+  private void open(int empty, String openBracket){
     beforeValue();
     push(empty);
-    out.write(openBracket);
-    return this;
+    call(()->out.write(openBracket));
   }
 
   /**
    * Closes the current scope by appending any necessary whitespace and the
    * given bracket.
    */
-  private JsonWriter close(int empty, int nonempty, String closeBracket)
-      throws IOException {
+  private GsonWriter close(int empty, int nonempty, String closeBracket){
     int context = peek();
     if (context != nonempty && context != empty) {
       throw new IllegalStateException("Nesting problem.");
@@ -346,7 +320,7 @@ public class JsonWriter implements Closeable, Flushable {
     if (context == nonempty) {
       newline();
     }
-    out.write(closeBracket);
+    call(()->out.write(closeBracket));
     return this;
   }
 
@@ -382,7 +356,8 @@ public class JsonWriter implements Closeable, Flushable {
    * @param name the name of the forthcoming value. May not be null.
    * @return this writer.
    */
-  public JsonWriter name(String name) throws IOException {
+  @Override
+  public void name(String name){
     if (name == null) {
       throw new NullPointerException("name == null");
     }
@@ -393,10 +368,9 @@ public class JsonWriter implements Closeable, Flushable {
       throw new IllegalStateException("JsonWriter is closed.");
     }
     deferredName = name;
-    return this;
   }
 
-  private void writeDeferredName() throws IOException {
+  private void writeDeferredName(){
     if (deferredName != null) {
       beforeName();
       string(deferredName);
@@ -410,14 +384,12 @@ public class JsonWriter implements Closeable, Flushable {
    * @param value the literal string value, or null to encode a null literal.
    * @return this writer.
    */
-  public JsonWriter value(String value) throws IOException {
-    if (value == null) {
-      return nullValue();
-    }
+  @Override
+  public void writeString(String value){
+    assert value!=null;
     writeDeferredName();
     beforeValue();
     string(value);
-    return this;
   }
 
   /**
@@ -427,97 +399,50 @@ public class JsonWriter implements Closeable, Flushable {
    * @param value the literal string value, or null to encode a null literal.
    * @return this writer.
    */
-  public JsonWriter jsonValue(String value) throws IOException {
+  void jsonValue(String value) throws IOException {
     if (value == null) {
-      return nullValue();
+      nullValue();
     }
-    writeDeferredName();
-    beforeValue();
-    out.append(value);
-    return this;
+    else{
+      writeDeferredName();
+      beforeValue();
+      out.append(value);
+    }
   }
 
   /**
    * Encodes {@code null}.
-   *
-   * @return this writer.
    */
-  public JsonWriter nullValue() throws IOException {
+  @Override
+  public void nullValue(){
     if (deferredName != null) {
       if (serializeNulls) {
         writeDeferredName();
+        beforeValue();
+        call(()->out.write("null"));
       } else {
         deferredName = null;
-        return this; // skip the name and the value
       }
     }
-    beforeValue();
-    out.write("null");
-    return this;
-  }
-
-  /**
-   * Encodes {@code value}.
-   *
-   * @return this writer.
-   */
-  public JsonWriter value(boolean value) throws IOException {
-    writeDeferredName();
-    beforeValue();
-    out.write(value ? "true" : "false");
-    return this;
-  }
-
-  /**
-   * Encodes {@code value}.
-   *
-   * @param value a finite value. May not be {@link Double#isNaN() NaNs} or
-   *     {@link Double#isInfinite() infinities}.
-   * @return this writer.
-   */
-  public JsonWriter value(double value) throws IOException {
-    if (Double.isNaN(value) || Double.isInfinite(value)) {
-      throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
+    else{
+      beforeValue();
+      call(()->out.write("null"));
     }
-    writeDeferredName();
-    beforeValue();
-    out.append(Double.toString(value));
-    return this;
   }
 
-  /**
-   * Encodes {@code value}.
-   *
-   * @return this writer.
-   */
-  public JsonWriter value(long value) throws IOException {
+  @Override
+  public void writeBoolean(boolean value){
     writeDeferredName();
     beforeValue();
-    out.write(Long.toString(value));
-    return this;
+    call(()->out.write(Boolean.toString(value)));
   }
 
-  /**
-   * Encodes {@code value}.
-   *
-   * @param value a finite value. May not be {@link Double#isNaN() NaNs} or
-   *     {@link Double#isInfinite() infinities}.
-   * @return this writer.
-   */
-  public JsonWriter value(Number value) throws IOException {
-    if (value == null) {
-      return nullValue();
-    }
-
+  @Override
+  public void writeDecimal(Decimal value){
+    assert value!=null;
     writeDeferredName();
-    String string = value.toString();
-    if (!lenient
-        && (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN"))) {
-      throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
-    }
     beforeValue();
-    out.append(string);
-    return this;
+    call(()->out.append(value.toEcmaString()));
   }
 
   /**
@@ -525,11 +450,11 @@ public class JsonWriter implements Closeable, Flushable {
    * and flushes that writer.
    */
   @Override
-  public void flush() throws IOException {
+  public void flush(){
     if (stackSize == 0) {
-      throw new IllegalStateException("JsonWriter is closed.");
+      throw new IllegalStateException("Closed.");
     }
-    out.flush();
+    call(out::flush);
   }
 
   /**
@@ -538,67 +463,70 @@ public class JsonWriter implements Closeable, Flushable {
    * @throws IOException if the JSON document is incomplete.
    */
   @Override
-  public void close() throws IOException {
-    out.close();
+  public void close(){
+    call(out::close);
 
     int size = stackSize;
     if (size > 1 || size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) {
-      throw new IOException("Incomplete document");
+      throw new RuntimeException("Incomplete document");
     }
     stackSize = 0;
   }
 
-  private void string(String value) throws IOException {
-    String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
-    out.write("\"");
-    int last = 0;
-    int length = value.length();
-    for (int i = 0; i < length; i++) {
-      char c = value.charAt(i);
-      String replacement;
-      if (c < 128) {
-        replacement = replacements[c];
-        if (replacement == null) {
+  private void string(String value){
+    call(()->{
+      final String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
+      out.write("\"");
+      int last = 0;
+      final int length = value.length();
+      for (int i = 0; i < length; i++) {
+        final char c = value.charAt(i);
+        final String replacement;
+        if (c < 128) {
+          replacement = replacements[c];
+          if (replacement == null) {
+            continue;
+          }
+        } else if (c == '\u2028') {
+          replacement = "\\u2028";
+        } else if (c == '\u2029') {
+          replacement = "\\u2029";
+        } else {
           continue;
         }
-      } else if (c == '\u2028') {
-        replacement = "\\u2028";
-      } else if (c == '\u2029') {
-        replacement = "\\u2029";
-      } else {
-        continue;
+        if (last < i) {
+          out.write(value, last, i - last);
+        }
+        out.write(replacement);
+        last = i + 1;
       }
-      if (last < i) {
-        out.write(value, last, i - last);
+      if (last < length) {
+        out.write(value, last, length - last);
       }
-      out.write(replacement);
-      last = i + 1;
-    }
-    if (last < length) {
-      out.write(value, last, length - last);
-    }
-    out.write("\"");
+      out.write("\"");
+    });
   }
 
-  private void newline() throws IOException {
+  private void newline(){
     if (indent == null) {
       return;
     }
-
-    out.write("\n");
-    for (int i = 1, size = stackSize; i < size; i++) {
-      out.write(indent);
-    }
+    call(()->{
+      out.write("\n");
+      for (int i = 1, size = stackSize; i < size; i++) {
+        out.write(indent);
+      }
+    });
   }
 
   /**
    * Inserts any necessary separators and whitespace before a name. Also
    * adjusts the stack to expect the name's value.
    */
-  private void beforeName() throws IOException {
+  private void beforeName(){
     int context = peek();
     if (context == NONEMPTY_OBJECT) { // first in object
-      out.write(',');
+      call(()->out.write(','));
     } else if (context != EMPTY_OBJECT) { // not in an object!
       throw new IllegalStateException("Nesting problem.");
     }
@@ -612,7 +540,7 @@ public class JsonWriter implements Closeable, Flushable {
    * closing bracket or another element.
    */
   @SuppressWarnings("fallthrough")
-  private void beforeValue() throws IOException {
+  private void beforeValue(){
     switch (peek()) {
     case NONEMPTY_DOCUMENT:
       if (!lenient) {
@@ -630,12 +558,12 @@ public class JsonWriter implements Closeable, Flushable {
       break;
 
     case NONEMPTY_ARRAY: // another in array
-      out.append(',');
+      call(()->out.append(','));
       newline();
       break;
 
     case DANGLING_NAME: // value for name
-      out.append(separator);
+      call(()->out.append(separator));
       replaceTop(NONEMPTY_OBJECT);
       break;
 
