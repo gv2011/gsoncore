@@ -1,4 +1,4 @@
-package com.github.gv2011.gson.stream;
+package com.github.gv2011.gsoncore;
 
 import static com.github.gv2011.util.CollectionUtils.pair;
 import static com.github.gv2011.util.ex.Exceptions.call;
@@ -21,7 +21,7 @@ import com.github.gv2011.util.json.JsonReader;
 import com.github.gv2011.util.json.JsonWriter;
 import com.github.gv2011.util.json.imp.Adapter;
 
-public final class JsongAdapter2 implements Adapter{
+public final class GsoncoreAdapter implements Adapter{
 
   @Override
   public JsonWriter newJsonWriter(final Writer out) {
@@ -44,23 +44,23 @@ public final class JsongAdapter2 implements Adapter{
     return call(()->{
       switch (in.peek()) {
       case STRING:
-        return jf.primitive(in.nextString());
+        return jf.primitive(in.readStringRaw());
       case NUMBER:
-        return jf.primitive(new BigDecimal(in.nextString()));
+        return jf.primitive(new BigDecimal(in.readStringRaw()));
       case BOOLEAN:
-        return jf.primitive(in.nextBoolean());
+        return jf.primitive(in.readBooleanRaw());
       case NULL:
-        in.nextNull();
+        in.readNullRaw();
         return jf.jsonNull();
       case BEGIN_ARRAY:
-        in.beginArray();
+        in.readArrayStart();
         final JsonList list = XStream.fromIterator(new It(jf, in)).collect(jf.toJsonList());
-        in.endArray();
+        in.readArrayEnd();
         return list;
       case BEGIN_OBJECT:
-        in.beginObject();
+        in.readObjectStart();
         final JsonObject obj = XStream.fromIterator(new Itm(jf, in)).collect(jf.toJsonObject());
-        in.endObject();
+        in.readObjectEnd();
         return obj;
       case NAME:
       case END_DOCUMENT:
@@ -110,7 +110,7 @@ public final class JsongAdapter2 implements Adapter{
 
     @Override
     public Pair<String,JsonNode> next() {
-        final String key = call(in::nextName);
+        final String key = in.readName();
         final JsonNode value = deserialize(jf, in);
         return pair(key, value);
     }

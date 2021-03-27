@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.gson.stream;
+package com.github.gv2011.gsoncore;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

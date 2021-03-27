@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.gson.stream;
+package com.github.gv2011.gsoncore;
 
 /**
  * Lexical scoping elements within a JSON reader or writer.

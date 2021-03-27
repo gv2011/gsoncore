@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.gson.stream;
+package com.github.gv2011.gsoncore;
+
+import com.github.gv2011.util.icol.Opt;
+import com.github.gv2011.util.json.JsonNodeType;
 
 /**
  * A structure, name or value type in a JSON-encoded string.
@@ -23,13 +26,13 @@ package com.github.gv2011.gson.stream;
  * @author Jesse Wilson
  * @since 1.6
  */
-public enum JsonToken {
+enum JsonToken {
 
   /**
    * The opening of a JSON array. Written using {@link JsonWriter#beginArray}
    * and read using {@link JsonReader#beginArray}.
    */
-  BEGIN_ARRAY,
+  BEGIN_ARRAY(JsonNodeType.LIST),
 
   /**
    * The closing of a JSON array. Written using {@link JsonWriter#endArray}
@@ -41,7 +44,7 @@ public enum JsonToken {
    * The opening of a JSON object. Written using {@link JsonWriter#beginObject}
    * and read using {@link JsonReader#beginObject}.
    */
-  BEGIN_OBJECT,
+  BEGIN_OBJECT(JsonNodeType.OBJECT),
 
   /**
    * The closing of a JSON object. Written using {@link JsonWriter#endObject}
@@ -59,28 +62,42 @@ public enum JsonToken {
   /**
    * A JSON string.
    */
-  STRING,
+  STRING(JsonNodeType.STRING),
 
   /**
    * A JSON number represented in this API by a Java {@code double}, {@code
    * long}, or {@code int}.
    */
-  NUMBER,
+  NUMBER(JsonNodeType.NUMBER),
 
   /**
    * A JSON {@code true} or {@code false}.
    */
-  BOOLEAN,
+  BOOLEAN(JsonNodeType.BOOLEAN),
 
   /**
    * A JSON {@code null}.
    */
-  NULL,
+  NULL(JsonNodeType.NULL),
 
   /**
    * The end of the JSON stream. This sentinel value is returned by {@link
    * JsonReader#peek()} to signal that the JSON-encoded value has no more
    * tokens.
    */
-  END_DOCUMENT
+  END_DOCUMENT;
+  
+  private final Opt<JsonNodeType> nodeType;
+  
+  private JsonToken(){
+    nodeType = Opt.empty();
+  }
+  
+  private JsonToken(JsonNodeType nodeType){
+    this.nodeType = Opt.of(nodeType);
+  }
+  
+  Opt<JsonNodeType> nodeType(){
+    return nodeType;
+  }
 }

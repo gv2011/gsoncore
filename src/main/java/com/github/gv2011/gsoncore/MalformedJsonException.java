@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.gson.stream;
+package com.github.gv2011.gsoncore;
 
 /**
  * Thrown when a reader encounters malformed JSON. Some syntax errors can be

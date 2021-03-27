@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.gson.stream;
+package com.github.gv2011.gsoncore;
 
 import java.io.StringReader;
 
@@ -26,39 +26,39 @@ public class JsonReaderPathTest extends TestCase {
     GsonReader reader = new GsonReader(
         new StringReader("{\"a\":[2,true,false,null,\"b\",{\"c\":\"d\"},[3]]}"));
     assertEquals("$", reader.getPath());
-    reader.beginObject();
+    reader.readObjectStart();
     assertEquals("$.", reader.getPath());
-    reader.nextName();
+    reader.readName();
     assertEquals("$.a", reader.getPath());
-    reader.beginArray();
+    reader.readArrayStart();
     assertEquals("$.a[0]", reader.getPath());
     reader.nextInt();
     assertEquals("$.a[1]", reader.getPath());
-    reader.nextBoolean();
+    reader.readBooleanRaw();
     assertEquals("$.a[2]", reader.getPath());
-    reader.nextBoolean();
+    reader.readBooleanRaw();
     assertEquals("$.a[3]", reader.getPath());
-    reader.nextNull();
+    reader.readNullRaw();
     assertEquals("$.a[4]", reader.getPath());
-    reader.nextString();
+    reader.readStringRaw();
     assertEquals("$.a[5]", reader.getPath());
-    reader.beginObject();
+    reader.readObjectStart();
     assertEquals("$.a[5].", reader.getPath());
-    reader.nextName();
+    reader.readName();
     assertEquals("$.a[5].c", reader.getPath());
-    reader.nextString();
+    reader.readStringRaw();
     assertEquals("$.a[5].c", reader.getPath());
-    reader.endObject();
+    reader.readObjectEnd();
     assertEquals("$.a[6]", reader.getPath());
-    reader.beginArray();
+    reader.readArrayStart();
     assertEquals("$.a[6][0]", reader.getPath());
     reader.nextInt();
     assertEquals("$.a[6][1]", reader.getPath());
-    reader.endArray();
+    reader.readArrayEnd();
     assertEquals("$.a[7]", reader.getPath());
-    reader.endArray();
+    reader.readArrayEnd();
     assertEquals("$.a", reader.getPath());
-    reader.endObject();
+    reader.readObjectEnd();
     assertEquals("$", reader.getPath());
   }
 
@@ -68,12 +68,12 @@ public class JsonReaderPathTest extends TestCase {
 
     reader.peek();
     assertEquals("$", reader.getPath());
-    reader.beginObject();
+    reader.readObjectStart();
     assertEquals("$.", reader.getPath());
 
     reader.peek();
     assertEquals("$.", reader.getPath());
-    reader.nextName();
+    reader.readName();
     assertEquals("$.a", reader.getPath());
 
     reader.peek();
@@ -83,7 +83,7 @@ public class JsonReaderPathTest extends TestCase {
 
     reader.peek();
     assertEquals("$.a", reader.getPath());
-    reader.nextName();
+    reader.readName();
     assertEquals("$.b", reader.getPath());
 
     reader.peek();
@@ -93,7 +93,7 @@ public class JsonReaderPathTest extends TestCase {
 
     reader.peek();
     assertEquals("$.b", reader.getPath());
-    reader.endObject();
+    reader.readObjectEnd();
     assertEquals("$", reader.getPath());
 
     reader.peek();
@@ -108,7 +108,7 @@ public class JsonReaderPathTest extends TestCase {
 
     reader.peek();
     assertEquals("$", reader.getPath());
-    reader.beginArray();
+    reader.readArrayStart();
     assertEquals("$[0]", reader.getPath());
 
     reader.peek();
@@ -123,7 +123,7 @@ public class JsonReaderPathTest extends TestCase {
 
     reader.peek();
     assertEquals("$[2]", reader.getPath());
-    reader.endArray();
+    reader.readArrayEnd();
     assertEquals("$", reader.getPath());
 
     reader.peek();
@@ -135,17 +135,17 @@ public class JsonReaderPathTest extends TestCase {
   public void testMultipleTopLevelValuesInOneDocument() {
     GsonReader reader = new GsonReader(new StringReader("[][]"), true);
     //reader.setLenient(true);
-    reader.beginArray();
-    reader.endArray();
+    reader.readArrayStart();
+    reader.readArrayEnd();
     assertEquals("$", reader.getPath());
-    reader.beginArray();
-    reader.endArray();
+    reader.readArrayStart();
+    reader.readArrayEnd();
     assertEquals("$", reader.getPath());
   }
 
   public void testSkipArrayElements() {
     GsonReader reader = new GsonReader(new StringReader("[1,2,3]"));
-    reader.beginArray();
+    reader.readArrayStart();
     reader.skipValue();
     reader.skipValue();
     assertEquals("$[2]", reader.getPath());
@@ -153,65 +153,65 @@ public class JsonReaderPathTest extends TestCase {
 
   public void testSkipObjectNames() {
     GsonReader reader = new GsonReader(new StringReader("{\"a\":1}"));
-    reader.beginObject();
+    reader.readObjectStart();
     reader.skipValue();
     assertEquals("$.null", reader.getPath());
   }
 
   public void testSkipObjectValues() {
     GsonReader reader = new GsonReader(new StringReader("{\"a\":1,\"b\":2}"));
-    reader.beginObject();
-    reader.nextName();
+    reader.readObjectStart();
+    reader.readName();
     reader.skipValue();
     assertEquals("$.null", reader.getPath());
-    reader.nextName();
+    reader.readName();
     assertEquals("$.b", reader.getPath());
   }
 
   public void testSkipNestedStructures() {
     GsonReader reader = new GsonReader(new StringReader("[[1,2,3],4]"));
-    reader.beginArray();
+    reader.readArrayStart();
     reader.skipValue();
     assertEquals("$[1]", reader.getPath());
   }
 
   public void testArrayOfObjects() {
     GsonReader reader = new GsonReader(new StringReader("[{},{},{}]"));
-    reader.beginArray();
+    reader.readArrayStart();
     assertEquals("$[0]", reader.getPath());
-    reader.beginObject();
+    reader.readObjectStart();
     assertEquals("$[0].", reader.getPath());
-    reader.endObject();
+    reader.readObjectEnd();
     assertEquals("$[1]", reader.getPath());
-    reader.beginObject();
+    reader.readObjectStart();
     assertEquals("$[1].", reader.getPath());
-    reader.endObject();
+    reader.readObjectEnd();
     assertEquals("$[2]", reader.getPath());
-    reader.beginObject();
+    reader.readObjectStart();
     assertEquals("$[2].", reader.getPath());
-    reader.endObject();
+    reader.readObjectEnd();
     assertEquals("$[3]", reader.getPath());
-    reader.endArray();
+    reader.readArrayEnd();
     assertEquals("$", reader.getPath());
   }
 
   public void testArrayOfArrays() {
     GsonReader reader = new GsonReader(new StringReader("[[],[],[]]"));
-    reader.beginArray();
+    reader.readArrayStart();
     assertEquals("$[0]", reader.getPath());
-    reader.beginArray();
+    reader.readArrayStart();
     assertEquals("$[0][0]", reader.getPath());
-    reader.endArray();
+    reader.readArrayEnd();
     assertEquals("$[1]", reader.getPath());
-    reader.beginArray();
+    reader.readArrayStart();
     assertEquals("$[1][0]", reader.getPath());
-    reader.endArray();
+    reader.readArrayEnd();
     assertEquals("$[2]", reader.getPath());
-    reader.beginArray();
+    reader.readArrayStart();
     assertEquals("$[2][0]", reader.getPath());
-    reader.endArray();
+    reader.readArrayEnd();
     assertEquals("$[3]", reader.getPath());
-    reader.endArray();
+    reader.readArrayEnd();
     assertEquals("$", reader.getPath());
   }
 }

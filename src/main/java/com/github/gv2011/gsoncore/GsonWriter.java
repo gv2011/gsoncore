@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.gson.stream;
+package com.github.gv2011.gsoncore;
 
-import static com.github.gv2011.gson.stream.JsonScope.DANGLING_NAME;
-import static com.github.gv2011.gson.stream.JsonScope.EMPTY_ARRAY;
-import static com.github.gv2011.gson.stream.JsonScope.EMPTY_DOCUMENT;
-import static com.github.gv2011.gson.stream.JsonScope.EMPTY_OBJECT;
-import static com.github.gv2011.gson.stream.JsonScope.NONEMPTY_ARRAY;
-import static com.github.gv2011.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
-import static com.github.gv2011.gson.stream.JsonScope.NONEMPTY_OBJECT;
+import static com.github.gv2011.gsoncore.JsonScope.DANGLING_NAME;
+import static com.github.gv2011.gsoncore.JsonScope.EMPTY_ARRAY;
+import static com.github.gv2011.gsoncore.JsonScope.EMPTY_DOCUMENT;
+import static com.github.gv2011.gsoncore.JsonScope.EMPTY_OBJECT;
+import static com.github.gv2011.gsoncore.JsonScope.NONEMPTY_ARRAY;
+import static com.github.gv2011.gsoncore.JsonScope.NONEMPTY_DOCUMENT;
+import static com.github.gv2011.gsoncore.JsonScope.NONEMPTY_OBJECT;
 import static com.github.gv2011.util.ex.Exceptions.call;
 
 import java.io.Flushable;

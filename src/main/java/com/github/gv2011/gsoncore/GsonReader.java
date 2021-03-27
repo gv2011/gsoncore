@@ -15,13 +15,30 @@
  * limitations under the License.
  */
 
-package com.github.gv2011.gson.stream;
+package com.github.gv2011.gsoncore;
 
+import static com.github.gv2011.util.CollectionUtils.pair;
 import static com.github.gv2011.util.ex.Exceptions.call;
 
 import java.io.Reader;
+import java.util.Iterator;
 
-import com.github.gv2011.util.AutoCloseableNt;
+import com.github.gv2011.util.Pair;
+import com.github.gv2011.util.XStream;
+import com.github.gv2011.util.icol.Opt;
+import com.github.gv2011.util.json.JsonBoolean;
+import com.github.gv2011.util.json.JsonFactory;
+import com.github.gv2011.util.json.JsonList;
+import com.github.gv2011.util.json.JsonNode;
+import com.github.gv2011.util.json.JsonNodeType;
+import com.github.gv2011.util.json.JsonNull;
+import com.github.gv2011.util.json.JsonNumber;
+import com.github.gv2011.util.json.JsonObject;
+import com.github.gv2011.util.json.JsonPrimitive;
+import com.github.gv2011.util.json.JsonReader;
+import com.github.gv2011.util.json.JsonString;
+import com.github.gv2011.util.num.Decimal;
+import com.github.gv2011.util.num.NumUtils;
 
 /**
  * Reads a JSON (<a href="http://www.ietf.org/rfc/rfc7159.txt">RFC 7159</a>)
@@ -57,7 +74,7 @@ import com.github.gv2011.util.AutoCloseableNt;
  * skip the value's nested tokens, which may otherwise conflict.
  *
  * <p>If a value may be null, you should first check using {@link #peek()}.
- * Null literals can be consumed using either {@link #nextNull()} or {@link
+ * Null literals can be consumed using either {@link #readNullRaw()} or {@link
  * #skipValue()}.
  *
  * <h3>Example</h3>
@@ -187,7 +204,7 @@ import com.github.gv2011.util.AutoCloseableNt;
  * @author Jesse Wilson
  * @since 1.6
  */
-public class GsonReader implements AutoCloseableNt {
+public class GsonReader implements JsonReader{
   /** The only non-execute prefix this parser permits */
   private static final char[] NON_EXECUTE_PREFIX = ")]}'\n".toCharArray();
   private static final long MIN_INCOMPLETE_INTEGER = Long.MIN_VALUE / 10;
@@ -222,6 +239,8 @@ public class GsonReader implements AutoCloseableNt {
   private static final int NUMBER_CHAR_EXP_E = 5;
   private static final int NUMBER_CHAR_EXP_SIGN = 6;
   private static final int NUMBER_CHAR_EXP_DIGIT = 7;
+  
+  private final JsonFactory jf;
 
   /** The input JSON. */
   private final Reader in;
@@ -286,17 +305,27 @@ public class GsonReader implements AutoCloseableNt {
   /**
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
-  public GsonReader(Reader in) {
-    this(in, false);
+  public GsonReader(final JsonFactory jf, Reader in) {
+    this(jf, in, false);
+  }
+
+  //For tests only
+  GsonReader(Reader in) {
+    this(null, in, false);
   }
 
   /**
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
-  public GsonReader(Reader in, boolean lenient) {
-    assert in != null;
+  public GsonReader(final JsonFactory jf, Reader in, boolean lenient) {
+    this.jf = jf;
     this.in = in;
     this.lenient = lenient;
+  }
+
+  //For tests only
+  GsonReader(Reader in, boolean lenient) {
+    this(null, in, lenient);
   }
 
   /**
@@ -328,7 +357,7 @@ public class GsonReader implements AutoCloseableNt {
    *   <li>Name/value pairs separated by {@code ;} instead of {@code ,}.
    * </ul>
    */
-  public final boolean isLenient() {
+  final boolean isLenient() {
     return lenient;
   }
 
@@ -336,7 +365,8 @@ public class GsonReader implements AutoCloseableNt {
    * Consumes the next token from the JSON stream and asserts that it is the
    * beginning of a new array.
    */
-  public void beginArray() {
+  @Override
+  public void readArrayStart() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -355,7 +385,8 @@ public class GsonReader implements AutoCloseableNt {
    * Consumes the next token from the JSON stream and asserts that it is the
    * end of the current array.
    */
-  public void endArray() {
+  @Override
+  public void readArrayEnd() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -374,7 +405,8 @@ public class GsonReader implements AutoCloseableNt {
    * Consumes the next token from the JSON stream and asserts that it is the
    * beginning of a new object.
    */
-  public void beginObject() {
+  @Override
+  public void readObjectStart() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -392,7 +424,8 @@ public class GsonReader implements AutoCloseableNt {
    * Consumes the next token from the JSON stream and asserts that it is the
    * end of the current object.
    */
-  public void endObject() {
+  @Override
+  public void readObjectEnd() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -411,6 +444,7 @@ public class GsonReader implements AutoCloseableNt {
   /**
    * Returns true if the current array or object has another element.
    */
+  @Override
   public boolean hasNext() {
     int p = peeked;
     if (p == PEEKED_NONE) {
@@ -422,7 +456,7 @@ public class GsonReader implements AutoCloseableNt {
   /**
    * Returns the type of the next token without consuming it.
    */
-  public JsonToken peek() {
+  JsonToken peek() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -770,13 +804,14 @@ public class GsonReader implements AutoCloseableNt {
   }
 
   /**
-   * Returns the next token, a {@link com.github.gv2011.gson.stream.JsonToken#NAME property name}, and
+   * Returns the next token, a {@link com.github.gv2011.gsoncore.JsonToken#NAME property name}, and
    * consumes it.
    *
    * @throws java.io.IOException if the next token in the stream is not a property
    *     name.
    */
-  public String nextName() {
+  @Override
+  public String readName() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -797,15 +832,19 @@ public class GsonReader implements AutoCloseableNt {
     return result;
   }
 
+  JsonString readString() {
+    return jf.primitive(readStringRaw());
+  }
+  
   /**
-   * Returns the {@link com.github.gv2011.gson.stream.JsonToken#STRING string} value of the next token,
+   * Returns the {@link com.github.gv2011.gsoncore.JsonToken#STRING string} value of the next token,
    * consuming it. If the next token is a number, this method will return its
    * string form.
    *
    * @throws IllegalStateException if the next token is not a string or if
    *     this reader is closed.
    */
-  public String nextString() {
+  String readStringRaw() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -834,14 +873,18 @@ public class GsonReader implements AutoCloseableNt {
     return result;
   }
 
+  JsonBoolean readBoolean() {
+    return jf.primitive(readBooleanRaw());
+  }
+
   /**
-   * Returns the {@link com.github.gv2011.gson.stream.JsonToken#BOOLEAN boolean} value of the next token,
+   * Returns the {@link com.github.gv2011.gsoncore.JsonToken#BOOLEAN boolean} value of the next token,
    * consuming it.
    *
    * @throws IllegalStateException if the next token is not a boolean or if
    *     this reader is closed.
    */
-  public boolean nextBoolean() {
+  boolean readBooleanRaw() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -858,6 +901,12 @@ public class GsonReader implements AutoCloseableNt {
     throw new IllegalStateException("Expected a boolean but was " + peek()
         + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
   }
+  
+  
+  JsonNull readNull() {
+    readNullRaw();
+    return jf.jsonNull();
+  }
 
   /**
    * Consumes the next token from the JSON stream and asserts that it is a
@@ -866,7 +915,7 @@ public class GsonReader implements AutoCloseableNt {
    * @throws IllegalStateException if the next token is not null or if this
    *     reader is closed.
    */
-  public void nextNull() {
+  void readNullRaw() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -881,7 +930,7 @@ public class GsonReader implements AutoCloseableNt {
   }
 
   /**
-   * Returns the {@link com.github.gv2011.gson.stream.JsonToken#NUMBER double} value of the next token,
+   * Returns the {@link com.github.gv2011.gsoncore.JsonToken#NUMBER double} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as a double using {@link Double#parseDouble(String)}.
    *
@@ -889,7 +938,11 @@ public class GsonReader implements AutoCloseableNt {
    * @throws NumberFormatException if the next literal value cannot be parsed
    *     as a double, or is non-finite.
    */
-  public double nextDouble() {
+  double nextDouble() {
+    return readNumberRaw().doubleValue();
+  }
+  
+  double nextDoubleOld() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -924,9 +977,51 @@ public class GsonReader implements AutoCloseableNt {
     pathIndices[stackSize - 1]++;
     return result;
   }
+  
+  JsonNumber readNumber() {
+    return jf.primitive(readNumberRaw());
+  }
+
+  Decimal readNumberRaw() {
+    final Decimal result;
+    int p = peeked;
+    if (p == PEEKED_NONE) {
+      p = doPeek();
+    }
+
+    if (p == PEEKED_LONG) {
+      peeked = PEEKED_NONE;
+      pathIndices[stackSize - 1]++;
+      result = NumUtils.from(peekedLong);
+    }
+    else{
+      if (p == PEEKED_NUMBER) {
+        peekedString = new String(buffer, pos, peekedNumberLength);
+        pos += peekedNumberLength;
+      } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
+        peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
+      } else if (p == PEEKED_UNQUOTED) {
+        peekedString = nextUnquotedValue();
+      } else if (p != PEEKED_BUFFERED) {
+        throw new IllegalStateException("Expected a double but was " + peek()
+            + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
+      }
+  
+      peeked = PEEKED_BUFFERED;
+      try {
+        result = NumUtils.parse(peekedString);
+      } catch (NumberFormatException e) {
+        throw new MalformedJsonException(e);
+      }
+      peekedString = null;
+      peeked = PEEKED_NONE;
+      pathIndices[stackSize - 1]++;
+    }
+    return result;
+  }
 
   /**
-   * Returns the {@link com.github.gv2011.gson.stream.JsonToken#NUMBER long} value of the next token,
+   * Returns the {@link com.github.gv2011.gsoncore.JsonToken#NUMBER long} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as a long. If the next token's numeric value cannot be exactly
    * represented by a Java {@code long}, this method throws.
@@ -935,7 +1030,7 @@ public class GsonReader implements AutoCloseableNt {
    * @throws NumberFormatException if the next literal value cannot be parsed
    *     as a number, or exactly represented as a long.
    */
-  public long nextLong() {
+  long nextLong() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -1149,7 +1244,7 @@ public class GsonReader implements AutoCloseableNt {
   }
 
   /**
-   * Returns the {@link com.github.gv2011.gson.stream.JsonToken#NUMBER int} value of the next token,
+   * Returns the {@link com.github.gv2011.gsoncore.JsonToken#NUMBER int} value of the next token,
    * consuming it. If the next token is a string, this method will attempt to
    * parse it as an int. If the next token's numeric value cannot be exactly
    * represented by a Java {@code int}, this method throws.
@@ -1158,7 +1253,7 @@ public class GsonReader implements AutoCloseableNt {
    * @throws NumberFormatException if the next literal value cannot be parsed
    *     as a number, or exactly represented as an int.
    */
-  public int nextInt() {
+  int nextInt() {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();
@@ -1223,7 +1318,7 @@ public class GsonReader implements AutoCloseableNt {
    * elements are skipped. This method is intended for use when the JSON token
    * stream contains unrecognized or unhandled values.
    */
-  public void skipValue() {
+  void skipValue() {
     int count = 0;
     do {
       int p = peeked;
@@ -1457,7 +1552,8 @@ public class GsonReader implements AutoCloseableNt {
     return false;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return getClass().getSimpleName()
         + " at line " + getLineNumber() + " column " + getColumnNumber();
   }
@@ -1467,7 +1563,7 @@ public class GsonReader implements AutoCloseableNt {
    * the current location in the JSON value.
    */
   @SuppressWarnings("incomplete-switch")
-  public String getPath() {
+  String getPath() {
     StringBuilder result = new StringBuilder().append('$');
     for (int i = 0, size = stackSize; i < size; i++) {
       switch (stack[i]) {
@@ -1589,6 +1685,91 @@ public class GsonReader implements AutoCloseableNt {
 
     // we consumed a security token!
     pos += NON_EXECUTE_PREFIX.length;
+  }
+
+  @Override
+  public Opt<JsonNodeType> nextType() {
+    return peek().nodeType();
+  }
+
+  @Override
+  public JsonNode readNode() {
+      switch (peek()) {
+      case BEGIN_ARRAY:
+        readArrayStart();
+        final JsonList list = XStream.fromIterator(new It()).collect(jf.toJsonList());
+        readArrayEnd();
+        return list;
+      case BEGIN_OBJECT:
+        readObjectStart();
+        final JsonObject obj = XStream.fromIterator(new Itm()).collect(jf.toJsonObject());
+        readObjectEnd();
+        return obj;
+      default:
+        return readPrimitive();
+      }
+  }
+
+  @Override
+  public JsonList readList() {
+    readArrayStart();
+    final JsonList list = XStream.fromIterator(new It()).collect(jf.toJsonList());
+    readArrayEnd();
+    return list;
+  }
+
+  @Override
+  public JsonObject readObject() {
+    readObjectStart();
+    final JsonObject obj = XStream.fromIterator(new Itm()).collect(jf.toJsonObject());
+    readObjectEnd();
+    return obj;
+  }
+
+  @Override
+  public JsonPrimitive<?> readPrimitive() {
+     switch (peek()) {
+      case STRING:
+        return readString();
+      case NUMBER:
+        return readNumber();
+      case BOOLEAN:
+        return readBoolean();
+      case NULL:
+        return readNull();
+      default:
+        throw new IllegalArgumentException();
+      }
+  }
+
+  @Override
+  public <P> JsonPrimitive<P> readPrimitive(Class<P> clazz) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
+  private final class It implements Iterator<JsonNode> {
+    @Override
+    public boolean hasNext() {
+        return hasNext();
+    }
+    @Override
+    public JsonNode next() {
+        return readNode();
+    }
+  }
+
+  private final class Itm implements Iterator<Pair<String,JsonNode>> {
+    @Override
+    public boolean hasNext() {
+        return hasNext();
+    }
+    @Override
+    public Pair<String,JsonNode> next() {
+        final String key = readName();
+        final JsonNode value = readNode();
+        return pair(key, value);
+    }
   }
 
 }
