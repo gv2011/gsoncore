@@ -39,6 +39,11 @@ public final class GsoncoreAdapter implements Adapter{
     	(ThrowingFunction<GsonReader,JsonNode>)r->deserialize(jf, r)
     );
   }
+  
+  @Override
+  public boolean isCanonical() {
+    return true;
+  }
 
   private JsonNode deserialize(final JsonFactory jf, final GsonReader in) {
     return call(()->{
