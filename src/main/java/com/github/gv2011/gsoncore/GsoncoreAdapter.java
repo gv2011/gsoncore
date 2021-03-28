@@ -19,7 +19,7 @@ import com.github.gv2011.util.json.JsonNode;
 import com.github.gv2011.util.json.JsonObject;
 import com.github.gv2011.util.json.JsonReader;
 import com.github.gv2011.util.json.JsonWriter;
-import com.github.gv2011.util.json.imp.Adapter;
+import com.github.gv2011.util.json.Adapter;
 
 public final class GsoncoreAdapter implements Adapter{
 
