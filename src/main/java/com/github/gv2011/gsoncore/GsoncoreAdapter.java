@@ -24,8 +24,8 @@ import com.github.gv2011.util.json.Adapter;
 public final class GsoncoreAdapter implements Adapter{
 
   @Override
-  public JsonWriter newJsonWriter(final Writer out) {
-    return new GsonWriter(out);
+  public JsonWriter newJsonWriter(final Writer out, final boolean compact) {
+    return new GsonWriter(out, compact ? "" : "  ");
   }
 
   @Override
@@ -39,7 +39,7 @@ public final class GsoncoreAdapter implements Adapter{
     	(ThrowingFunction<GsonReader,JsonNode>)r->deserialize(jf, r)
     );
   }
-  
+
   @Override
   public boolean isCanonical() {
     return true;
