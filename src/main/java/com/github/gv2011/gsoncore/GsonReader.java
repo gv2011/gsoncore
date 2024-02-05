@@ -992,7 +992,7 @@ public class GsonReader implements JsonReader{
     if (p == PEEKED_LONG) {
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
-      result = NumUtils.from(peekedLong);
+      result = NumUtils.num(peekedLong);
     }
     else{
       if (p == PEEKED_NUMBER) {
