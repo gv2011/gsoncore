@@ -133,7 +133,7 @@ import com.github.gv2011.util.num.Decimal;
  * @since 1.6
  */
 public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
-  
+
   public static final String DEFAULT_INDENT = "  ";
 
   /*
@@ -196,22 +196,22 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
 
   private boolean serializeNulls = false;
 
-  
+
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}.
    * For best performance, ensure {@link Writer} is buffered; wrapping in
    * {@link java.io.BufferedWriter BufferedWriter} if necessary.
    */
-  public GsonWriter(Writer out) {
+  public GsonWriter(final Writer out) {
     this(out, DEFAULT_INDENT, false, false, false);
   }
 
-  public GsonWriter(Writer out, String indent) {
+  public GsonWriter(final Writer out, final String indent) {
     this(out, indent, false, false, false);
   }
 
-  
-  GsonWriter(Writer out, String indent, boolean lenient, boolean htmlSafe, boolean serializeNulls) {
+
+  GsonWriter(final Writer out, final String indent, final boolean lenient, final boolean htmlSafe, final boolean serializeNulls) {
     assert out != null;
     this.out = out;
     if (indent.length() == 0) {
@@ -297,7 +297,7 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
    * Enters a new scope by appending any necessary whitespace and the given
    * bracket.
    */
-  private void open(int empty, String openBracket){
+  private void open(final int empty, final String openBracket){
     beforeValue();
     push(empty);
     call(()->out.write(openBracket));
@@ -307,8 +307,8 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
    * Closes the current scope by appending any necessary whitespace and the
    * given bracket.
    */
-  private GsonWriter close(int empty, int nonempty, String closeBracket){
-    int context = peek();
+  private GsonWriter close(final int empty, final int nonempty, final String closeBracket){
+    final int context = peek();
     if (context != nonempty && context != empty) {
       throw new IllegalStateException("Nesting problem.");
     }
@@ -324,9 +324,9 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
     return this;
   }
 
-  private void push(int newTop) {
+  private void push(final int newTop) {
     if (stackSize == stack.length) {
-      int[] newStack = new int[stackSize * 2];
+      final int[] newStack = new int[stackSize * 2];
       System.arraycopy(stack, 0, newStack, 0, stackSize);
       stack = newStack;
     }
@@ -346,7 +346,7 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
   /**
    * Replace the value on the top of the stack with the given value.
    */
-  private void replaceTop(int topOfStack) {
+  private void replaceTop(final int topOfStack) {
     stack[stackSize - 1] = topOfStack;
   }
 
@@ -357,7 +357,7 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
    * @return this writer.
    */
   @Override
-  public void name(String name){
+  public void name(final String name){
     if (name == null) {
       throw new NullPointerException("name == null");
     }
@@ -382,10 +382,9 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
    * Encodes {@code value}.
    *
    * @param value the literal string value, or null to encode a null literal.
-   * @return this writer.
    */
   @Override
-  public void writeString(String value){
+  public void writeString(final String value){
     assert value!=null;
     writeDeferredName();
     beforeValue();
@@ -397,9 +396,8 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
    * escaping.
    *
    * @param value the literal string value, or null to encode a null literal.
-   * @return this writer.
    */
-  void jsonValue(String value) throws IOException {
+  void jsonValue(final String value) throws IOException {
     if (value == null) {
       nullValue();
     }
@@ -431,14 +429,14 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
   }
 
   @Override
-  public void writeBoolean(boolean value){
+  public void writeBoolean(final boolean value){
     writeDeferredName();
     beforeValue();
     call(()->out.write(Boolean.toString(value)));
   }
 
   @Override
-  public void writeDecimal(Decimal value){
+  public void writeDecimal(final Decimal value){
     assert value!=null;
     writeDeferredName();
     beforeValue();
@@ -466,14 +464,14 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
   public void close(){
     call(out::close);
 
-    int size = stackSize;
+    final int size = stackSize;
     if (size > 1 || size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) {
       throw new RuntimeException("Incomplete document");
     }
     stackSize = 0;
   }
 
-  private void string(String value){
+  private void string(final String value){
     call(()->{
       final String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
       out.write("\"");
@@ -524,7 +522,7 @@ public class GsonWriter implements AutoCloseableNt, Flushable, JsonWriter {
    * adjusts the stack to expect the name's value.
    */
   private void beforeName(){
-    int context = peek();
+    final int context = peek();
     if (context == NONEMPTY_OBJECT) { // first in object
       call(()->out.write(','));
     } else if (context != EMPTY_OBJECT) { // not in an object!

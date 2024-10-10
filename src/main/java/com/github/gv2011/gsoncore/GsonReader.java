@@ -239,7 +239,7 @@ public class GsonReader implements JsonReader{
   private static final int NUMBER_CHAR_EXP_E = 5;
   private static final int NUMBER_CHAR_EXP_SIGN = 6;
   private static final int NUMBER_CHAR_EXP_DIGIT = 7;
-  
+
   private final JsonFactory jf;
 
   /** The input JSON. */
@@ -305,26 +305,26 @@ public class GsonReader implements JsonReader{
   /**
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
-  public GsonReader(final JsonFactory jf, Reader in) {
+  public GsonReader(final JsonFactory jf, final Reader in) {
     this(jf, in, false);
   }
 
   //For tests only
-  GsonReader(Reader in) {
+  GsonReader(final Reader in) {
     this(null, in, false);
   }
 
   /**
    * Creates a new instance that reads a JSON-encoded stream from {@code in}.
    */
-  public GsonReader(final JsonFactory jf, Reader in, boolean lenient) {
+  public GsonReader(final JsonFactory jf, final Reader in, final boolean lenient) {
     this.jf = jf;
     this.in = in;
     this.lenient = lenient;
   }
 
   //For tests only
-  GsonReader(Reader in, boolean lenient) {
+  GsonReader(final Reader in, final boolean lenient) {
     this(null, in, lenient);
   }
 
@@ -496,12 +496,12 @@ public class GsonReader implements JsonReader{
   }
 
   int doPeek() {
-    int peekStack = stack[stackSize - 1];
+    final int peekStack = stack[stackSize - 1];
     if (peekStack == JsonScope.EMPTY_ARRAY) {
       stack[stackSize - 1] = JsonScope.NONEMPTY_ARRAY;
     } else if (peekStack == JsonScope.NONEMPTY_ARRAY) {
       // Look for a comma before the next element.
-      int c = nextNonWhitespace(true);
+      final int c = nextNonWhitespace(true);
       switch (c) {
       case ']':
         return peeked = PEEKED_END_ARRAY;
@@ -516,7 +516,7 @@ public class GsonReader implements JsonReader{
       stack[stackSize - 1] = JsonScope.DANGLING_NAME;
       // Look for a comma before the next element.
       if (peekStack == JsonScope.NONEMPTY_OBJECT) {
-        int c = nextNonWhitespace(true);
+        final int c = nextNonWhitespace(true);
         switch (c) {
         case '}':
           return peeked = PEEKED_END_OBJECT;
@@ -528,7 +528,7 @@ public class GsonReader implements JsonReader{
           throw syntaxError("Unterminated object");
         }
       }
-      int c = nextNonWhitespace(true);
+      final int c = nextNonWhitespace(true);
       switch (c) {
       case '"':
         return peeked = PEEKED_DOUBLE_QUOTED_NAME;
@@ -553,7 +553,7 @@ public class GsonReader implements JsonReader{
     } else if (peekStack == JsonScope.DANGLING_NAME) {
       stack[stackSize - 1] = JsonScope.NONEMPTY_OBJECT;
       // Look for a colon before the value.
-      int c = nextNonWhitespace(true);
+      final int c = nextNonWhitespace(true);
       switch (c) {
       case ':':
         break;
@@ -572,7 +572,7 @@ public class GsonReader implements JsonReader{
       }
       stack[stackSize - 1] = JsonScope.NONEMPTY_DOCUMENT;
     } else if (peekStack == JsonScope.NONEMPTY_DOCUMENT) {
-      int c = nextNonWhitespace(false);
+      final int c = nextNonWhitespace(false);
       if (c == -1) {
         return peeked = PEEKED_EOF;
       } else {
@@ -583,7 +583,7 @@ public class GsonReader implements JsonReader{
       throw new IllegalStateException("JsonReader is closed");
     }
 
-    int c = nextNonWhitespace(true);
+    final int c = nextNonWhitespace(true);
     switch (c) {
     case ']':
       if (peekStack == JsonScope.EMPTY_ARRAY) {
@@ -654,7 +654,7 @@ public class GsonReader implements JsonReader{
     }
 
     // Confirm that chars [1..length) match the keyword.
-    int length = keyword.length();
+    final int length = keyword.length();
     for (int i = 1; i < length; i++) {
       if (pos + i >= limit && !fillBuffer(i + 1)) {
         return PEEKED_NONE;
@@ -677,7 +677,7 @@ public class GsonReader implements JsonReader{
 
   private int peekNumber() {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
-    char[] buffer = this.buffer;
+    final char[] buffer = this.buffer;
     int p = pos;
     int l = limit;
 
@@ -703,7 +703,7 @@ public class GsonReader implements JsonReader{
         l = limit;
       }
 
-      char c = buffer[p + i];
+      final char c = buffer[p + i];
       switch (c) {
       case '-':
         if (last == NUMBER_CHAR_NONE) {
@@ -752,7 +752,7 @@ public class GsonReader implements JsonReader{
           if (value == 0) {
             return PEEKED_NONE; // Leading '0' prefix is not allowed (since it could be octal).
           }
-          long newValue = value * 10 - (c - '0');
+          final long newValue = value * 10 - (c - '0');
           fitsInLong &= value > MIN_INCOMPLETE_INTEGER
               || (value == MIN_INCOMPLETE_INTEGER && newValue < value);
           value = newValue;
@@ -778,7 +778,7 @@ public class GsonReader implements JsonReader{
     }
   }
 
-  private boolean isLiteral(char c) {
+  private boolean isLiteral(final char c) {
     switch (c) {
     case '/':
     case '\\':
@@ -835,7 +835,7 @@ public class GsonReader implements JsonReader{
   JsonString readString() {
     return jf.primitive(readStringRaw());
   }
-  
+
   /**
    * Returns the {@link com.github.gv2011.gsoncore.JsonToken#STRING string} value of the next token,
    * consuming it. If the next token is a number, this method will return its
@@ -901,8 +901,8 @@ public class GsonReader implements JsonReader{
     throw new IllegalStateException("Expected a boolean but was " + peek()
         + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
   }
-  
-  
+
+
   JsonNull readNull() {
     readNullRaw();
     return jf.jsonNull();
@@ -941,7 +941,7 @@ public class GsonReader implements JsonReader{
   double nextDouble() {
     return readNumberRaw().doubleValue();
   }
-  
+
   double nextDoubleOld() {
     int p = peeked;
     if (p == PEEKED_NONE) {
@@ -967,7 +967,7 @@ public class GsonReader implements JsonReader{
     }
 
     peeked = PEEKED_BUFFERED;
-    double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    final double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new MalformedJsonException("JSON forbids NaN and infinities: " + result
           + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
@@ -977,7 +977,7 @@ public class GsonReader implements JsonReader{
     pathIndices[stackSize - 1]++;
     return result;
   }
-  
+
   JsonNumber readNumber() {
     return jf.primitive(readNumberRaw());
   }
@@ -1006,11 +1006,11 @@ public class GsonReader implements JsonReader{
         throw new IllegalStateException("Expected a double but was " + peek()
             + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
       }
-  
+
       peeked = PEEKED_BUFFERED;
       try {
         result = NumUtils.parse(peekedString);
-      } catch (NumberFormatException e) {
+      } catch (final NumberFormatException e) {
         throw new MalformedJsonException(e);
       }
       peekedString = null;
@@ -1048,11 +1048,11 @@ public class GsonReader implements JsonReader{
     } else if (p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED) {
       peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
       try {
-        long result = Long.parseLong(peekedString);
+        final long result = Long.parseLong(peekedString);
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
         return result;
-      } catch (NumberFormatException ignored) {
+      } catch (final NumberFormatException ignored) {
         // Fall back to parse as a double below.
       }
     } else {
@@ -1061,8 +1061,8 @@ public class GsonReader implements JsonReader{
     }
 
     peeked = PEEKED_BUFFERED;
-    double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
-    long result = (long) asDouble;
+    final double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    final long result = (long) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'long'.
       throw new NumberFormatException("Expected a long but was " + peekedString
           + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
@@ -1083,17 +1083,17 @@ public class GsonReader implements JsonReader{
    * @throws NumberFormatException if any unicode escape sequences are
    *     malformed.
    */
-  private String nextQuotedValue(char quote) {
+  private String nextQuotedValue(final char quote) {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
-    char[] buffer = this.buffer;
-    StringBuilder builder = new StringBuilder();
+    final char[] buffer = this.buffer;
+    final StringBuilder builder = new StringBuilder();
     while (true) {
       int p = pos;
       int l = limit;
       /* the index of the first character not yet appended to the builder. */
       int start = p;
       while (p < l) {
-        int c = buffer[p++];
+        final int c = buffer[p++];
 
         if (c == quote) {
           pos = p;
@@ -1185,15 +1185,15 @@ public class GsonReader implements JsonReader{
     return result;
   }
 
-  private void skipQuotedValue(char quote) {
+  private void skipQuotedValue(final char quote) {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
-    char[] buffer = this.buffer;
+    final char[] buffer = this.buffer;
     do {
       int p = pos;
       int l = limit;
       /* the index of the first character not yet appended to the builder. */
       while (p < l) {
-        int c = buffer[p++];
+        final int c = buffer[p++];
         if (c == quote) {
           pos = p;
           return;
@@ -1281,7 +1281,7 @@ public class GsonReader implements JsonReader{
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
         return result;
-      } catch (NumberFormatException ignored) {
+      } catch (final NumberFormatException ignored) {
         // Fall back to parse as a double below.
       }
     } else {
@@ -1290,7 +1290,7 @@ public class GsonReader implements JsonReader{
     }
 
     peeked = PEEKED_BUFFERED;
-    double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    final double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
     result = (int) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'int'.
       throw new NumberFormatException("Expected an int but was " + peekedString
@@ -1354,11 +1354,11 @@ public class GsonReader implements JsonReader{
     pathNames[stackSize - 1] = "null";
   }
 
-  private void push(int newTop) {
+  private void push(final int newTop) {
     if (stackSize == stack.length) {
-      int[] newStack = new int[stackSize * 2];
-      int[] newPathIndices = new int[stackSize * 2];
-      String[] newPathNames = new String[stackSize * 2];
+      final int[] newStack = new int[stackSize * 2];
+      final int[] newPathIndices = new int[stackSize * 2];
+      final String[] newPathNames = new String[stackSize * 2];
       System.arraycopy(stack, 0, newStack, 0, stackSize);
       System.arraycopy(pathIndices, 0, newPathIndices, 0, stackSize);
       System.arraycopy(pathNames, 0, newPathNames, 0, stackSize);
@@ -1375,7 +1375,7 @@ public class GsonReader implements JsonReader{
    * false.
    */
   private boolean fillBuffer(int minimum) {
-    char[] buffer = this.buffer;
+    final char[] buffer = this.buffer;
     lineStart -= pos;
     if (limit != pos) {
       limit -= pos;
@@ -1417,7 +1417,7 @@ public class GsonReader implements JsonReader{
    * {@code buffer[pos-1]}; this means the caller can always push back the
    * returned character by decrementing {@code pos}.
    */
-  private int nextNonWhitespace(boolean throwOnEof) {
+  private int nextNonWhitespace(final boolean throwOnEof) {
     /*
      * This code uses ugly local variables 'p' and 'l' representing the 'pos'
      * and 'limit' fields respectively. Using locals rather than fields saves
@@ -1426,7 +1426,7 @@ public class GsonReader implements JsonReader{
      * before any (potentially indirect) call to fillBuffer() and reread both
      * 'p' and 'l' after any (potentially indirect) call to the same method.
      */
-    char[] buffer = this.buffer;
+    final char[] buffer = this.buffer;
     int p = pos;
     int l = limit;
     while (true) {
@@ -1439,7 +1439,7 @@ public class GsonReader implements JsonReader{
         l = limit;
       }
 
-      int c = buffer[p++];
+      final int c = buffer[p++];
       if (c == '\n') {
         lineNumber++;
         lineStart = p;
@@ -1452,7 +1452,7 @@ public class GsonReader implements JsonReader{
         pos = p;
         if (p == l) {
           pos--; // push back '/' so it's still in the buffer when this method returns
-          boolean charsLoaded = fillBuffer(2);
+          final boolean charsLoaded = fillBuffer(2);
           pos++; // consume the '/' again
           if (!charsLoaded) {
             return c;
@@ -1460,7 +1460,7 @@ public class GsonReader implements JsonReader{
         }
 
         checkLenient();
-        char peek = buffer[pos];
+        final char peek = buffer[pos];
         switch (peek) {
         case '*':
           // skip a /* c-style comment */
@@ -1520,7 +1520,7 @@ public class GsonReader implements JsonReader{
    */
   private void skipToEndOfLine() {
     while (pos < limit || fillBuffer(1)) {
-      char c = buffer[pos++];
+      final char c = buffer[pos++];
       if (c == '\n') {
         lineNumber++;
         lineStart = pos;
@@ -1534,7 +1534,7 @@ public class GsonReader implements JsonReader{
   /**
    * @param toFind a string to search for. Must not contain a newline.
    */
-  private boolean skipTo(String toFind) {
+  private boolean skipTo(final String toFind) {
     outer:
     for (; pos + toFind.length() <= limit || fillBuffer(toFind.length()); pos++) {
       if (buffer[pos] == '\n') {
@@ -1564,7 +1564,7 @@ public class GsonReader implements JsonReader{
    */
   @SuppressWarnings("incomplete-switch")
   String getPath() {
-    StringBuilder result = new StringBuilder().append('$');
+    final StringBuilder result = new StringBuilder().append('$');
     for (int i = 0, size = stackSize; i < size; i++) {
       switch (stack[i]) {
         case JsonScope.EMPTY_ARRAY:
@@ -1604,7 +1604,7 @@ public class GsonReader implements JsonReader{
       throw syntaxError("Unterminated escape sequence");
     }
 
-    char escaped = buffer[pos++];
+    final char escaped = buffer[pos++];
     switch (escaped) {
     case 'u':
       if (pos + 4 > limit && !fillBuffer(4)) {
@@ -1613,7 +1613,7 @@ public class GsonReader implements JsonReader{
       // Equivalent to Integer.parseInt(stringPool.get(buffer, pos, 4), 16);
       char result = 0;
       for (int i = pos, end = i + 4; i < end; i++) {
-        char c = buffer[i];
+        final char c = buffer[i];
         result <<= 4;
         if (c >= '0' && c <= '9') {
           result += (c - '0');
@@ -1647,7 +1647,7 @@ public class GsonReader implements JsonReader{
       lineNumber++;
       lineStart = pos;
       //$FALL-THROUGH$
-      
+
     case '\'':
     case '"':
     case '\\':
@@ -1660,7 +1660,7 @@ public class GsonReader implements JsonReader{
    * Throws a new MalformedJsonException with the given message and a context snippet
    * with this reader's content.
    */
-  private MalformedJsonException syntaxError(String message) {
+  private MalformedJsonException syntaxError(final String message) {
     throw new MalformedJsonException(message
         + " at line " + getLineNumber() + " column " + getColumnNumber() + " path " + getPath());
   }
@@ -1743,15 +1743,15 @@ public class GsonReader implements JsonReader{
   }
 
   @Override
-  public <P> JsonPrimitive<P> readPrimitive(Class<P> clazz) {
+  public <P> JsonPrimitive<P> readPrimitive(final Class<P> clazz) {
     // TODO Auto-generated method stub
     return null;
   }
-  
+
   private final class It implements Iterator<JsonNode> {
     @Override
     public boolean hasNext() {
-        return hasNext();
+        return GsonReader.this.hasNext();
     }
     @Override
     public JsonNode next() {
@@ -1762,7 +1762,7 @@ public class GsonReader implements JsonReader{
   private final class Itm implements Iterator<Pair<String,JsonNode>> {
     @Override
     public boolean hasNext() {
-        return hasNext();
+        return GsonReader.this.hasNext();
     }
     @Override
     public Pair<String,JsonNode> next() {

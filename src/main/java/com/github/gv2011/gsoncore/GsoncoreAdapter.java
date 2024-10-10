@@ -13,13 +13,13 @@ import java.util.Iterator;
 import com.github.gv2011.util.Pair;
 import com.github.gv2011.util.XStream;
 import com.github.gv2011.util.ex.ThrowingFunction;
+import com.github.gv2011.util.json.Adapter;
 import com.github.gv2011.util.json.JsonFactory;
 import com.github.gv2011.util.json.JsonList;
 import com.github.gv2011.util.json.JsonNode;
 import com.github.gv2011.util.json.JsonObject;
 import com.github.gv2011.util.json.JsonReader;
 import com.github.gv2011.util.json.JsonWriter;
-import com.github.gv2011.util.json.Adapter;
 
 public final class GsoncoreAdapter implements Adapter{
 
@@ -30,7 +30,7 @@ public final class GsoncoreAdapter implements Adapter{
 
   @Override
   public JsonReader newJsonReader(final JsonFactory jf, final Reader in) {
-	  return new GsonReader(in);
+	  return new GsonReader(jf, in);
   }
 
   @Override
