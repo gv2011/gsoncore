@@ -5,13 +5,14 @@
   <parent>
     <groupId>com.github.gv2011</groupId>
     <artifactId>parent-gv</artifactId>
-    <version>1.8-SNAPSHOT</version>
+    <version>1.8</version>
   </parent>
 
   <artifactId>gsoncore</artifactId>
   <version>0.15-SNAPSHOT</version>
 
-
+  <name>gv2011-gsoncore</name>
+  
   <description>
     Low level (JsonWriter and JsonReader) functionality extracted from  Gson.
   </description>
@@ -53,12 +54,16 @@
       <url>https://github.com/gv2011</url>
     </developer>
   </developers>
-
+  
+  <properties>
+    <java.release>17</java.release>
+  </properties>
+  
   <dependencies>
     <dependency>
       <groupId>com.github.gv2011</groupId>
       <artifactId>util-apis</artifactId>
-      <version>0.15-SNAPSHOT</version>
+      <version>0.15</version>
     </dependency>
     <dependency>
       <groupId>jakarta.activation</groupId>
